@@ -1,3 +1,6 @@
 import DataMining.tickers_and_cache as tnc
 
-print(tnc.data.tickers)
+
+tickers = tnc.TNS(["tesla", "microsoft", "alphabet"]).get_objects()
+print(tickers)
+tickers[0]
