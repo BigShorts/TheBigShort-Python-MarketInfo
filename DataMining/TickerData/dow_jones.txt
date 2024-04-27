@@ -1,0 +1,31 @@
+# reload+after+2024-05-03 23:48:43.886351
+MMM§3M§1.54%§NYSE§Conglomerate
+AXP§American Express§3.64%§NYSE§Financial services
+AMGN§Amgen§4.80%§NASDAQ§Biopharmaceutical
+AMZN§Amazon§2.93%§NASDAQ§Retailing
+AAPL§Apple§3.04%§NASDAQ§Information technology
+BA§Boeing§3.36%§NYSE§Aerospace and defense
+CAT§Caterpillar§5.45%§NYSE§Construction and mining
+CVX§Chevron§2.59%§NYSE§Petroleum industry
+CSCO§Cisco§0.81%§NASDAQ§Information technology
+KO§Coca-Cola§1.02%§NYSE§Drink industry
+DIS§Disney§1.81%§NYSE§Broadcasting and entertainment
+DOW§Dow§0.94%§NYSE§Chemical industry
+GS§Goldman Sachs§6.54%§NYSE§Financial services
+HD§Home Depot§6.23%§NYSE§Home Improvement
+HON§Honeywell§3.34%§NASDAQ§Conglomerate
+IBM§IBM§3.09%§NYSE§Information technology
+INTC§Intel§0.72%§NASDAQ§Semiconductor industry
+JNJ§Johnson & Johnson§2.70%§NYSE§Pharmaceutical industry
+JPM§JPMorgan Chase§3.07%§NYSE§Financial services
+MCD§McDonald's§4.98%§NYSE§Food industry
+MRK§Merck§2.16%§NYSE§Pharmaceutical industry
+MSFT§Microsoft§6.83%§NASDAQ§Information technology
+NKE§Nike§1.75%§NYSE§Clothing industry
+PG§Procter & Gamble§2.69%§NYSE§Fast-moving consumer goods
+CRM§Salesforce§5.04%§NYSE§Information technology
+TRV§Travelers§3.69%§NYSE§Insurance
+UNH§UnitedHealth Group§8.81%§NYSE§Managed health care
+VZ§Verizon§0.67%§NYSE§Telecommunications industry
+V§Visa§4.76%§NYSE§Financial services
+WMT§Walmart§1.00%§NYSE§Retailing

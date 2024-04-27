@@ -1,0 +1,5 @@
+Resolve current day tickets and stuff to names
+
+2 stages: buy and sell: 2x 24/7 scripts, interlinked
+
+logic to find shorts from stock

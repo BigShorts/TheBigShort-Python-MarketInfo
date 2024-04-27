@@ -1,0 +1,6 @@
+requests-html
+pandas
+yfinance
+requests
+requests_html
+lxml_html_clean
