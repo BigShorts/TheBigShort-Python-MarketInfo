@@ -30,7 +30,7 @@ headers = {"Authorization": api_key}
 #    print(ticker)
 
 
-url = "https://live.trading212.com/api/v0/equity/metadata/exchanges"
+url = "https://live.trading212.com/api/v0/equity/metadata/instruments"
 
 
 response = requests.get(url, headers=headers)

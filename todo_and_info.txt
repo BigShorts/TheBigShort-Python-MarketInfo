@@ -1,0 +1,28 @@
+Resolve current day tickets and stuff to names
+
+2 stages: buy and sell: 2x 24/7 scripts, interlinked
+
+logic to find shorts from stock
+
+todo TNS cache of previously searched
+
+todo rewrite TNS to make accessing data out of it less stupid
+
+todo make get live price function
+
+todo check upcoming earnings calls, check against market value choice, send to DataAnalysis
+todo figure out if earnings calender can be downloaded 7 days in advance or if needs to be left to update
+
+todo figure out what fields for tickers to store in DB
+todo figure out if all traded stocks are included in the database --- lewisD
+
+todo check to see if API has changed since new look to yf - need to look over whole webpages
+
+
+notes for new members:
+we use python for DataMining on trading212 because of the python only APi
+we use python for DataMining on yahoo finance because of the python only yfinance library
+
+
+
+# todo c# bindings to python, through socket.

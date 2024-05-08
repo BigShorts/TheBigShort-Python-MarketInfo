@@ -1,4 +1,4 @@
-# reload+after+2024-05-03 23:48:38.307797
+# reload+after+2024-05-15 00:02:00.488255
 MMM§3M§Industrials§ Industrial Conglomerates§Saint Paul, Minnesota§66740
 AOS§A. O. Smith§Industrials§ Building Products§Milwaukee, Wisconsin§91142
 ABT§Abbott§Health Care§ Health Care Equipment§North Chicago, Illinois§1800
@@ -374,7 +374,6 @@ PCG§PG&E Corporation§Utilities§ Multi-Utilities§San Francisco, California§1
 PM§Philip Morris International§Consumer Staples§ Tobacco§New York City, New York§1413329
 PSX§Phillips 66§Energy§ Oil & Gas Refining & Marketing§Houston, Texas§1534701
 PNW§Pinnacle West§Utilities§ Multi-Utilities§Phoenix, Arizona§764622
-PXD§Pioneer Natural Resources§Energy§ Oil & Gas Exploration & Production§Irving, Texas§1038357
 PNC§PNC Financial Services§Financials§ Regional Banks§Pittsburgh, Pennsylvania§713676
 POOL§Pool Corporation§Consumer Discretionary§ Distributors§Covington, Louisiana§945841
 PPG§PPG Industries§Materials§ Specialty Chemicals§Pittsburgh, Pennsylvania§79879

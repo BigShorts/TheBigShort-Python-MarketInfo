@@ -7,7 +7,8 @@ import warnings
 import os
 import datetime
 import pandas
-import yfinance
+import yfinance  # https://github.com/ranaroussi/yfinance
+# todo check for new API access points, price targets and upgrades and downgrades useful
 import sqlite3
 
 # This file contains TNS, cache based functions and the Ticker class
@@ -42,8 +43,6 @@ def table_to_dict(table, skip: int = 0):
             _data_.update({str(table.index[i]): [x for x in value[:-skip]]})
         else:
             _data_.update({str(table.index[i]): [x for x in value]})
-        # filtering disabled as it has the potential to mess up indexes
-        # _data.update({value[0]: [x for x in value[1:] if str(x) not in ["", "-", "nan", "NaN"]]})
 
     return _data_
 
@@ -414,6 +413,7 @@ def load_profiles():
     return exec_dict, comp_names_l, comp_names_s
 
 
+# todo rename and make more sense
 # class of wrappers to return data from profile data
 class _Data:
     def __init__(self):

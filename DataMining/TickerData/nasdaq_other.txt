@@ -1,4 +1,4 @@
-# reload+after+2024-05-03 23:48:40.225441
+# reload+after+2024-05-15 00:02:02.496248
 AA§Alcoa Corporation Common Stock 
 AAA§Alternative Access First Priority CLO Bond ETF
 AAAU§Goldman Sachs Physical Gold ETF Shares
@@ -63,7 +63,6 @@ AEE§Ameren Corporation Common Stock
 AEF§abrdn Emerging Markets Equity Income Fund, Inc. Common Stock
 AEFC§Aegon Funding Company LLC 5.10% Subordinated Notes due 2049
 AEG§Aegon Ltd. New York Registry Shares
-AEL§American Equity Investment Life Holding Company Common Stock
 AEL$A§American Equity Investment Life Holding Company Depositary Shares, each representing a 1/1,000th interest in a share of 5.95% Fixed-Rate Reset Non-Cumulative Preferred Stock, Series A§
 AEL$B§American Equity Investment Life Holding Company Depositary Shares, each representing a 1/1,000th interest in a share of 6.625% Fixed-Rate Reset Non-Cumulative Preferred Stock, Series B§
 AEM§Agnico Eagle Mines Limited Common Stock
@@ -95,6 +94,7 @@ AGCO§AGCO Corporation Common Stock
 AGD§abrdn Global Dynamic Dividend Fund Common Shares of Beneficial Interest
 AGG§iShares Core U.S. Aggregate Bond ETF
 AGGH§Simplify Aggregate Bond ETF
+AGGS§Harbor ETF Trust Harbor Disciplined Bond ETF
 AGGY§WisdomTree Yield Enhanced U.S. Aggregate Bond Fund
 AGI§Alamos Gold Inc. Class A Common Shares
 AGIH§iShares U.S. ETF Trust iShares Inflation Hedged U.S. Aggregate Bond ETF
@@ -114,7 +114,6 @@ AGR§Avangrid, Inc. Common Stock
 AGRH§iShares U.S. ETF Trust iShares Interest Rate Hedged U.S. Aggregate Bond ETF
 AGRO§Adecoagro S.A. Common Shares
 AGS§PlayAGS, Inc. Common Stock
-AGTI§Agiliti, Inc. Common Stock
 AGX§Argan, Inc. Common Stock
 AGZ§iShares  Agency Bond ETF
 AHH§Armada Hoffler Properties, Inc. Common Stock
@@ -135,6 +134,7 @@ AHYB§American Century Select High Yield ETF
 AI§C3.ai, Inc. Class A Common Stock
 AIEQ§Amplify ETF Trust Amplify AI Powered Equity ETF
 AIF§Apollo Tactical Income Fund Inc. Common Stock
+AIFD§Engine No. 1 ETF Trust TCW Artificial Intelligence ETF
 AIG§American International Group, Inc. New Common Stock
 AIM§AIM ImmunoTech Inc. Common Stock
 AIN§Albany International Corporation Common Stock
@@ -154,7 +154,6 @@ AIZN§Assurant, Inc. 5.25% Subordinated Notes due 2061
 AJAN§Innovator ETFs Trust Innovator Equity Defined Protection ETF§2 Yr to January 2026
 AJG§Arthur J. Gallagher & Co. Common Stock
 AJX§Great Ajax Corp. Common Stock
-AJXA§Great Ajax Corp. 7.25% Convertible Senior Notes due 2024
 AKA§a.k.a. Brands Holding Corp. Common Stock
 AKO.A§Embotelladora Andina S.A. Common Stock
 AKO.B§Embotelladora Andina S.A. Common Stock
@@ -809,6 +808,7 @@ BWA§BorgWarner Inc. Common Stock
 BWEB§Bitwise Funds Trust Bitwise Web3 ETF
 BWET§Amplify Commodity Trust Breakwave Tanker Shipping ETF
 BWG§BrandywineGLOBAL Global Income Opportunities Fund Inc.
+BWLP§BW LPG Limited Common Shares
 BWNB§Babcock & Wilcox Enterprises, Inc. 6.50% Senior Notes due 2026
 BWSN§Babcock & Wilcox Enterprises, Inc. 8.125% Senior Notes due 2026
 BWTG§ETF Opportunities Trust Brendan Wood TopGun Index ETF
@@ -1099,6 +1099,7 @@ CPK§Chesapeake Utilities Corporation Common Stock
 CPNG§Coupang, Inc. Class A Common Stock
 CPRI§Capri Holdings Limited Ordinary Shares
 CPS§Cooper-Standard Holdings Inc. Common Stock§
+CPSM§Calamos ETF Trust Calamos S&P 500 Structured Alt Protection ETF  May
 CPT§Camden Property Trust Common Stock
 CQP§Cheniere Energy Partners, LP Common Units
 CQQQ§Invesco China Technology ETF
@@ -1121,6 +1122,7 @@ CRL§Charles River Laboratories International, Inc. Common Stock
 CRM§Salesforce, Inc. Common Stock
 CRPT§First Trust SkyBridge Crypto Industry and Digital Economy ETF
 CRS§Carpenter Technology Corporation Common Stock
+CRSH§Tidal Trust II YieldMax Short TSLA Option Income Strategy ETF
 CRT§Cross Timbers Royalty Trust Common Stock
 CRTC§DBX ETF Trust Xtrackers US National Critical Technologies ETF
 CRUZ§Defiance Hotel, Airline, and Cruise ETF
@@ -1440,8 +1442,6 @@ DRQ§Dril-Quip, Inc. Common Stock§
 DRSK§Aptus Defined Risk ETF 
 DRUP§GraniteShares Nasdaq Select Disruptors ETF
 DRV§Direxion Daily Real Estate Bear 3X Shares
-DSAQ§Direct Selling Acquisition Corp. Class A Common Stock
-DSAQ.U§Direct Selling Acquisition Corp. Units, each consisting of one share of Class A common stock and one-half of redeemable warrant§
 DSCF§Discipline Fund ETF
 DSEP§FT Vest U.S. Equity Deep Buffer ETF§September
 DSI§iShares MSCI KLD 400 Social ETF
@@ -1516,7 +1516,7 @@ EAOK§iShares ESG Aware Conservative Allocation ETF
 EAOM§iShares ESG Aware Moderate Allocation ETF
 EAOR§iShares ESG Aware Growth Allocation ETF
 EAPR§Innovator Emerging Markets Power Buffer ETF April
-EARN§Ellington Residential Mortgage REIT Common Shares of Beneficial Interest
+EARN§Ellington Credit Company Common Shares of Beneficial Interest
 EASG§Xtrackers MSCI EAFE ESG Leaders Equity ETF
 EAT§Brinker International, Inc. Common Stock
 EATV§Advisors Series Trust VegTech Plant-based Innovation & Climate ETF§
@@ -1615,6 +1615,7 @@ EIDO§iShares MSCI Indonesia ETF
 EIG§Employers Holdings Inc Common Stock
 EIM§Eaton Vance Municipal Bond Fund Common Shares of Beneficial Interest, $.01 par value
 EINC§VanEck Energy Income ETF
+EIPI§First Trust Exchange-Traded Fund VIII FT Energy Income Partners Enhanced Income ETF§
 EIPX§First Trust Exchange-Traded Fund IV FT Energy Income Partners Strategy ETF§
 EIRL§iShares Trust iShares MSCI Ireland ETF
 EIS§iShares Inc iShares MSCI Israel ETF
@@ -1925,12 +1926,10 @@ FEBZ§TrueShares Structured Outcome (February) ETF
 FEDL§ETRACS 2x Leveraged IFED Invest with the Fed TR Index ETN
 FEDM§FlexShares ESG & Climate Developed Markets ex-US Core Index Fund§
 FEDU§Four Seasons Education (Cayman) Inc. American Depositary Shares, each ADS representing 10 ordinary shares
-FEI§First Trust MLP and Energy Income Fund Common Shares of Beneficial Interest
 FEIG§FlexShares ESG & Climate Investment Grade Corporate Core Index Fund
 FELC§Fidelity Covington Trust Fidelity Enhanced Large Cap Core ETF
 FELG§Fidelity Covington Trust Fidelity Enhanced Large Cap Growth ETF
 FELV§Fidelity Covington Trust Fidelity Enhanced Large Cap Value ETF
-FEN§First Trust Energy Income and Growth Fund
 FENG§Phoenix New Media Limited American Depositary Shares, each representing 48 Class A ordinary shares.
 FENI§Fidelity Covington Trust Fidelity Enhanced International ETF
 FENY§Fidelity MSCI Energy Index ETF
@@ -1964,7 +1963,6 @@ FHLC§Fidelity MSCI Health Care Index ETF
 FHN§First Horizon Corporation Common Stock
 FHN$B§First Horizon Corporation Depositary Shares, each representing a 1/400th interest in a share of Non-Cumulative Perpetual Preferred Stock, Series B§
 FHN$C§First Horizon Corporation Depositary Shares, each representing a 1/400th interest in a share of Non-Cumulative Perpetual Preferred Stock, Series C§
-FHN$D§First Horizon Corporation Depositary Shares, each representing a 1/400th interest in a share of Non-Cumulative Perpetual Preferred Stock, Series D§
 FHN$E§First Horizon Corporation Depositary Shares, each representing a 1/4,000th interest in a share of Non-Cumulative Perpetual Preferred Stock, Series E§
 FHN$F§First Horizon Corporation Depositary Shares, each representing 1/4000th Interest in a Share of Non-Cumulative Perpetual Preferred Stock, Series F§
 FHYS§Federated Hermes ETF Trust Federated Hermes Short Duration High Yield ETF
@@ -1974,7 +1972,6 @@ FIBR§iShares U.S. Fixed Income Balanced Risk Systematic ETF
 FICO§Fair Isaac Corproation Common Stock
 FIDI§Fidelity International High Dividend ETF
 FIDU§Fidelity MSCI Industrials Index ETF
-FIF§First Trust Energy Infrastructure Fund Common Shares of Beneficial Interest
 FIG§Simplify Exchange Traded Funds Simplify Macro Strategy ETF
 FIGB§Fidelity Investment Grade Bond ETF
 FIGS§FIGS, Inc. Class A Common Stock
@@ -2098,7 +2095,6 @@ FPF§First Trust Intermediate Duration Preferred & Income Fund Common Shares of 
 FPFD§Fidelity Preferred Securities & Income ETF
 FPH§Five Point Holdings, LLC Class A Common Shares
 FPI§Farmland Partners Inc. Common Stock
-FPL§First Trust New Opportunities MLP & Energy Fund Common Shares of Beneficial Interest
 FPRO§Fidelity Real Estate Investment ETF
 FPX§First Trust US Equity Opportunities ETF
 FQAL§Fidelity Quality Factor ETF
@@ -2401,6 +2397,7 @@ GROY§Gold Royalty Corp. Common Shares
 GRP.U§Granite Real Estate Inc. Stapled Units, each consisting of one unit of Granite Real Estate Trust and one common share of Granite REIT Inc.
 GRPM§Invesco S&P MidCap 400? GARP ETF
 GRPZ§Invesco Exchange-Traded Fund Trust II Invesco S&P SmallCap 600 GARP ETF§
+GRW§Engine No. 1 ETF Trust TCW Compounders ETF
 GRX§The Gabelli Healthcare & Wellness Trust Common Shares of Beneficial Interest
 GS§Goldman Sachs Group, Inc. (The) Common Stock
 GS$A§Goldman Sachs Group, Inc. (The) Depositary Shares each representing 1/1000th Interest in a Share of Floating Rate Non-Cumulative Preferred Stock Series A§
@@ -2804,6 +2801,7 @@ ILF§iShares Latin America 40 ETF
 ILTB§iShares Core 10  Year USD Bond ETF
 IMAR§Innovator ETFs Trust Innovator International Developed Power Buffer ETF  March
 IMAX§Imax Corporation Common Stock
+IMAY§SHL Telemedicine Ltd Innovator International Developed Power Buffer ETF§May
 IMCB§iShares Morningstar Mid-Cap ETF§
 IMCG§iShares Morningstar Mid-Cap Growth ETF§
 IMFL§Invesco International Developed Dynamic Multifactor ETF
@@ -3027,6 +3025,7 @@ JHCB§John Hancock Corporate Bond ETF
 JHDV§John Hancock Exchange-Traded Fund Trust John Hancock U.S. High Dividend ETF§
 JHEM§John Hancock Multifactor Emerging Markets ETF
 JHG§Janus Henderson Group plc Ordinary Shares
+JHHY§John Hancock Exchange-Traded Fund Trust John Hancock High Yield ETF§
 JHI§John Hancock Investors Trust Common Stock
 JHID§John Hancock Exchange-Traded Fund Trust John Hancock International High Dividend ETF§
 JHMB§John Hancock Mortgage-Backed Securities ETF§
@@ -3120,7 +3119,6 @@ KAI§Kadant Inc Common Stock
 KALL§KraneShares MSCI All China Index ETF
 KAPR§Innovator U.S. Small Cap Power Buffer ETF§April
 KAR§OPENLANE, Inc. Common Stock
-KARB§ETF Series Solutions Carbon Strategy ETF
 KARS§KraneShares Electric Vehicles and Future Mobility Index ETF
 KB§KB Financial Group Inc
 KBA§KraneShares Bosera MSCI China A 50 Connect Index ETF
@@ -3399,7 +3397,9 @@ MATV§Mativ Holdings, Inc. Common Stock
 MATX§Matson, Inc. Common Stock
 MAV§Pioneer Municipal High Income Advantage Fund, Inc.
 MAX§MediaAlpha, Inc. Class A Common Stock
+MAYP§SHL Telemedicine Ltd PGIM US Large-Cap Buffer 12 ETF§May
 MAYT§AIM ETF Products Trust AllianzIM U.S. Large Cap Buffer10 May ETF
+MAYU§SHL Telemedicine Ltd AllianzIM U.S. Equity Buffer15 Uncapped May ETF
 MAYW§AIM ETF Products Trust AllianzIM U.S. Large Cap Buffer20 May ETF
 MAYZ§Listed Funds Trust TrueShares Structured Outcome (May) ETF
 MBBB§VanEck Moody's Analytics BBB Corporate Bond ETF
@@ -3780,7 +3780,7 @@ NKE§Nike, Inc. Common Stock
 NKX§Nuveen California AMT-Free Quality Municipal Income Fund§
 NL§NL Industries, Inc. Common Stock
 NLOP§Net Lease Office Properties Common Shares of Beneficial Interest
-NLR§VanEck Uranium   Nuclear Energy ETF 
+NLR§VanEck Uranium and Nuclear ETF
 NLY§Annaly Capital Management Inc. Common Stock
 NLY$F§Annaly Capital Management Inc 6.95% Series F
 NLY$G§Annaly Capital Management Inc 6.50% Series G Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock§
@@ -3836,7 +3836,6 @@ NRSH§Tidal ETF Trust Aztlan North America Nearshoring Stock Selection ETF
 NRT§North European Oil Royality Trust Common Stock
 NRUC§National Rural Utilities Cooperative Finance Corporation 5.500% Subordinated Notes due 2064 (Subordinated Deferrable Interest Notes)
 NRXS§Neuraxis, Inc. Common Stock
-NS§Nustar Energy L.P.  Common Units
 NS$A§Nustar Energy L.P. 8.50% Series A Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Units§
 NS$B§Nustar Energy L.P. 7.625% Series B Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Units representing limited partner interests§
 NS$C§Nustar Energy L.P. 9.00% Series C Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Units§
@@ -4080,6 +4079,7 @@ PBJ§Invesco Food & Beverage ETF
 PBJA§PGIM US Large-Cap Buffer 12 ETF§January PGIM US Large-Cap Buffer 20 ETF', 'January
 PBL§PGIM ETF Trust PGIM Portfolio Ballast ETF
 PBMR§PGIM US Large-Cap Buffer 12 ETF§January PGIM US Large-Cap Buffer 20 ETF', 'March
+PBMY§SHL Telemedicine Ltd PGIM US Large-Cap Buffer 20 ETF§May
 PBP§Invesco S&P 500 BuyWrite ETF
 PBR§Petroleo Brasileiro S.A.- Petrobras Common Stock§
 PBR.A§Petroleo Brasileiro S.A.- Petrobras American Depositary Shares§
@@ -4161,8 +4161,6 @@ PGR§Progressive Corporation (The) Common Stock
 PGRE§Paramount Group, Inc. Common Stock
 PGRO§Putnam Focused Large Cap Growth ETF
 PGRU§PropertyGuru Group Limited Ordinary Shares
-PGSS§Pegasus Digital Mobility Acquisition Corp. Class A Ordinary Shares
-PGSS.U§Pegasus Digital Mobility Acquisition Corp. Units
 PGX§Invesco Preferred ETF
 PGZ§Principal Real Estate Income Fund Common Shares of Beneficial Interest
 PH§Parker-Hannifin Corporation Common Stock§
@@ -4374,7 +4372,6 @@ PWSC§PowerSchool Holdings, Inc. Class A Common Stock
 PWV§Invesco Large Cap Value ETF
 PWZ§Invesco California AMT-Free Municipal Bond Portfolio§
 PX§P10, Inc. Class A Common Stock
-PXD§Pioneer Natural Resources Company Common Stock
 PXE§Invesco Energy Exploration & Production ETF
 PXF§Invesco FTSE RAFI Developed Markets ex-U.S. ETF§
 PXH§Invesco FTSE RAFI Emerging Markets ETF
@@ -4470,8 +4467,8 @@ RC$C§Ready Capital Corporation 6.25% Series C Cumulative Convertible Preferred 
 RC$E§Ready Capital Corporation 6.50% Series E Cumulative Redeemable Preferred Stock
 RCB§Ready Capital Corporation 6.20% Senior Notes due 2026
 RCC§Ready Capital Corporation 5.75% Senior Notes due 2026
-RCFA§RCF Acquisition Corp. Class A Ordinary Shares
-RCFA.U§RCF Acquisition Corp. Units, each consisting of one Class A ordinary share and one-half of one redeemable warrant§
+RCFA§Perception Capital Corp. IV Class A Ordinary Shares
+RCFA.U§Perception Capital Corp. IV Units, each consisting of one Class A ordinary share and one-half of one redeemable warrant§
 RCG§RENN Fund, Inc Common Stock
 RCI§Rogers Communication, Inc. Common Stock
 RCL§Royal Caribbean Cruises Ltd. Common Stock
@@ -4492,7 +4489,7 @@ REI§Ring Energy, Inc. Common Stock
 REK§ProShares Short Real Estate
 RELX§RELX PLC PLC American Depositary Shares (Each representing One Ordinary Share)
 REM§iShares Trust iShares Mortgage Real Estate ETF
-REMX§VanEck Rare Earth/Strategic Metals ETF 
+REMX§VanEck Rare Earth and Strategic Metals ETF
 RENW§Harbor ETF Trust Harbor Energy Transition Strategy ETF
 REPX§Riley Exploration Permian, Inc. Common Stock
 RERE§ATRenew Inc. American Depositary Shares (every three of which representing two Class A ordinary shares)
@@ -4522,7 +4519,7 @@ RFMZ§RiverNorth Flexible Municipal Income Fund II, Inc. Common Stock
 RFV§Invesco S&P Midcap 400 Pure Value ETF
 RGA§Reinsurance Group of America, Incorporated Common Stock
 RGR§Sturm, Ruger & Company, Inc. Common Stock
-RGT§Royce Global Value Trust, Inc. Common Stock
+RGT§Royce Global Trust, Inc. Common Stock
 RH§RH Common Stock
 RHCB§BNY Mellon ETF Trust BNY Mellon Responsible Horizons Corporate Bond ETF
 RHE§Regional Health Properties, Inc. Common Stock
@@ -4568,6 +4565,7 @@ RMM§RiverNorth Managed Duration Municipal Income Fund, Inc. Common Stock
 RMMZ§RiverNorth Managed Duration Municipal Income Fund II, Inc. Common Stock
 RMPL$§RiverNorth Capital and Income Fund 5.875%% Series A Term Preferred Stock $0.0001 par value per share
 RMT§Royce Micro-Cap Trust, Inc. Common Stock§
+RND§First Trust Exchange-Traded Fund VI First Trust Bloomberg R&D Leaders ETF§
 RNG§RingCentral, Inc. Class A Common Stock
 RNGR§Ranger Energy Services, Inc. Class A Common Stock
 RNP§Cohen & Steers REIT and Preferred and Income Fund, Inc. Common Shares
@@ -4635,7 +4633,7 @@ RVLV§Revolve Group, Inc. Class A Common Stock
 RVNU§Xtrackers Municipal Infrastructure Revenue Bond ETF
 RVP§Retractable Technologies, Inc. Common Stock
 RVRB§Advisors Series Trust Reverb ETF
-RVT§Royce Value Trust, Inc. Common Stock
+RVT§Royce Small-Cap Trust, Inc. Common Stock§
 RVTY§Revvity, Inc. Common Stock
 RWJ§Invesco Exchange-Traded Fund Trust II Invesco S&P SmallCap 600 Revenue ETF§
 RWK§Invesco Exchange-Traded Fund Trust II Invesco S&P MidCap 400 Revenue ETF§
@@ -4873,6 +4871,7 @@ SIXL§ETC 6 Meridian Low Beta Equity ETF
 SIXO§AllianzIM U.S. Large Cap 6 Month Buffer10 Apr/Oct ETF
 SIXP§AIM ETF Products Trust AllianzIM U.S. Large Cap 6 Month Buffer10 Mar/Sep ETF
 SIXS§ETC 6 Meridian Small Cap Equity ETF
+SIXZ§SHL Telemedicine Ltd AllianzIM U.S. Large Cap 6 Month Buffer10 May/Nov ETF
 SIZE§iShares MSCI USA Size Factor ETF
 SJB§ProShares Short High Yield
 SJM§The J.M. Smucker Company Common Stock
@@ -5202,7 +5201,6 @@ TBX§ProShares Short 7 10 Year Treasury
 TCAF§T. Rowe Price Exchange-Traded Funds, Inc. T. Rowe Price Capital Appreciation Equity ETF§
 TCHP§T. Rowe Price Blue Chip Growth ETF
 TCI§Transcontinental Realty Investors, Inc. Common Stock
-TCN§Tricon Residential Inc. Common Shares
 TCOA§Zalatoris Acquisition Corp. Class A Common Stock
 TCOA.U§Zalatoris Acquisition Corp. Units, each consisting of one share of Class A common stock and one-half of one redeemable public warrant§
 TCS§Container Store (The) Common Stock
@@ -5322,6 +5320,7 @@ TNL§Travel   Leisure Co. Common  Stock
 TNP§Tsakos Energy Navigation Ltd Common Shares
 TNP$E§Tsakos Energy Navigation Ltd Series E Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Shares, par value $1.00§
 TNP$F§Tsakos Energy Navigation Ltd Series F Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Shares, par value $1.00§
+TOGA§Managed Portfolio Series Tremblant Global ETF
 TOK§iShares MSCI Kokusai ETF
 TOKE§Cambria Cannabis ETF
 TOL§Toll Brothers, Inc. Common Stock
@@ -5634,6 +5633,7 @@ VICE§AdvisorShares Trust AdvisorShares Vice ETF
 VICI§VICI Properties Inc. Common Stock
 VIDI§Vident International Equity Strategy ETF
 VIG§Vanguard Div Appreciation ETF
+VIK§Viking Holdings Ltd Ordinary Shares
 VINE§Fresh Vine Wine, Inc. Common Stock
 VIOG§Vanguard S&P Small-Cap 600 Growth ETF§
 VIOO§Vanguard S&P Small-Cap 600 ETF§

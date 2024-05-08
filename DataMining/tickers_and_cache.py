@@ -5,8 +5,8 @@ from DataMining.tickerlib import *
 # This file contains functions that scrape data from Yahoo Finance
 # This file should be called when the program starts
 
-urlUS = "https://finance.yahoo.com/"
-urlUK = "https://uk.finance.yahoo.com"
+_urlUS_ = "https://finance.yahoo.com/"
+_urlUK_ = "https://uk.finance.yahoo.com"
 
 
 def _force_float_(elt):
@@ -57,35 +57,35 @@ def __raw_daily_info__(site, uk=False, skip=0):
 
 
 def day_most_active_us(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUS}/most-active?offset={offset}&count={count}")
+    return __raw_daily_info__(f"{_urlUS_}/most-active?offset={offset}&count={count}")
 
 
 def day_most_active_uk(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUK}/most-active?offset={offset}&count={count}", True)
+    return __raw_daily_info__(f"{_urlUK_}/most-active?offset={offset}&count={count}", True)
 
 
 def day_gainers_us(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUS}/gainers?offset={offset}&count={count}")
+    return __raw_daily_info__(f"{_urlUS_}/gainers?offset={offset}&count={count}")
 
 
 def day_gainers_uk(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUK}/gainers?offset={offset}&count={count}", True)
+    return __raw_daily_info__(f"{_urlUK_}/gainers?offset={offset}&count={count}", True)
 
 
 def day_losers_us(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUS}/losers?offset={offset}&count={count}")
+    return __raw_daily_info__(f"{_urlUS_}/losers?offset={offset}&count={count}")
 
 
 def day_losers_uk(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUK}/losers?offset={offset}&count={count}", True)
+    return __raw_daily_info__(f"{_urlUK_}/losers?offset={offset}&count={count}", True)
 
 
 def day_trending_tickers():
-    return __raw_daily_info__(f"{urlUS}/trending-tickers", skip=2)
+    return __raw_daily_info__(f"{_urlUS_}/trending-tickers", skip=2)
 
 
 def day_top_etfs_us(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUS}/etfs?offset={offset}&count={count}")
+    return __raw_daily_info__(f"{_urlUS_}/etfs?offset={offset}&count={count}")
 
 
 def day_top_etfs_uk(offset: int = 0, count: int = 100):
@@ -93,52 +93,52 @@ def day_top_etfs_uk(offset: int = 0, count: int = 100):
 
 
 def day_top_mutual_us(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUS}/mutualfunds?offset={offset}&count={count}")
+    return __raw_daily_info__(f"{_urlUS_}/mutualfunds?offset={offset}&count={count}")
 
 
 def day_top_mutual_uk(offset: int = 0, count: int = 100):
-    return __raw_daily_info__(f"{urlUK}/mutualfunds?offset={offset}&count={count}", True)
+    return __raw_daily_info__(f"{_urlUK_}/mutualfunds?offset={offset}&count={count}", True)
 
 
 def day_top_futures_us():
     # why is there an unnamed column???
-    return table_to_dict(pandas.read_html(requests.get(f"{urlUS}/commodities",headers=default_headers).text)[0],
+    return table_to_dict(pandas.read_html(requests.get(f"{_urlUS_}/commodities",headers=default_headers).text)[0],
                          skip=1)
 
 
 def day_top_futures_uk():
     # why is there an unnamed column???
-    return table_to_dict(pandas.read_html(requests.get(f"{urlUK}/commodities", headers=default_headers).text)[0],
+    return table_to_dict(pandas.read_html(requests.get(f"{_urlUK_}/commodities", headers=default_headers).text)[0],
                          skip=1)
 
 
 def day_highest_open_interest(offset: int = 0, count: int = 100):
     # uses a different table format than other daily infos
-    return table_to_dict(pandas.read_html(requests.get(f"{urlUS}/options/highest-open-interest?"
+    return table_to_dict(pandas.read_html(requests.get(f"{_urlUS_}/options/highest-open-interest?"
                                           f"offset={offset}&count={count}", headers=default_headers).text)[0])
 
 
 def day_highest_implied_volatility(offset: int = 0, count: int = 100):
     # uses a different table format than other daily infos
-    return table_to_dict(pandas.read_html(requests.get(f"{urlUS}/options/highest-implied-volatility?"
+    return table_to_dict(pandas.read_html(requests.get(f"{_urlUS_}/options/highest-implied-volatility?"
                                           f"offset={offset}&count={count}", headers=default_headers).text)[0])
 
 
 def day_top_world_indices():
-    return __raw_daily_info__(f"{urlUS}/world-indices", skip=2)
+    return __raw_daily_info__(f"{_urlUS_}/world-indices", skip=2)
 
 
 def day_top_forex_rates():
-    return __raw_daily_info__(f"{urlUS}/currencies", skip=1)
+    return __raw_daily_info__(f"{_urlUS_}/currencies", skip=1)
 
 
 def day_top_us_bonds():
-    return __raw_daily_info__(f"{urlUS}/bonds", skip=1)
+    return __raw_daily_info__(f"{_urlUS_}/bonds", skip=1)
 
 
 def day_top_crypto(offset: int = 0, count: int = 100):
     session = requests_html.HTMLSession()
-    resp = session.get(f"{urlUS}/cryptocurrencies?offset={offset}&count={count}")
+    resp = session.get(f"{_urlUS_}/cryptocurrencies?offset={offset}&count={count}")
     df = pandas.read_html(resp.html.raw_html)[0].copy()
     df["% Change"] = df["% Change"].map(lambda x: float(str(x).strip("%").strip("+").replace(",", "")))
     del df["52 Week Range"]
@@ -166,14 +166,21 @@ def _parse_earnings_json(url):
     return json.loads(page_data)
 
 
+# todo finish rewriting
 # Returns a dictionary of stock tickers with earnings expected EPS values for each stock.
-def earnings_for_date_us(date=datetime.datetime.today(), offset=0, count=100):
+def earnings_for_date_us(date=datetime.datetime.today()):
     date = pandas.Timestamp(date).strftime("%Y-%m-%d")
-    url = f"{urlUS}/calendar/earnings?day={date}&offset={offset}&size={count}"
-    try:
-        return table_to_dict(pandas.read_html(requests.get(url, headers=default_headers).text)[0])
-    except ValueError:
-        return {}
+    offset = 0
+    tables = []
+    while True:
+        try:
+            url = f"{_urlUS_}/calendar/earnings?day={date}&offset={offset}&size=100"
+            tables += table_to_dict(pandas.read_html(requests.get(url, headers=default_headers).text)[0])
+            offset += 100
+        except ValueError:
+            break
+    # todo combine tables and number correctly
+    return tables
 
 
 # Returns a dictionary of stock tickers with earnings expected EPS values for each stock.
@@ -222,7 +229,7 @@ def futures():  # Returns the futures table from Yahoo Finance
 
 # Returns the undervalued large caps table from Yahoo Finance
 def undervalued_large_caps_us(offset: int = 0, count: int = 100):
-    site = f"{urlUS}/screener/predefined/undervalued_large_caps?offset={offset}&count={count}"
+    site = f"{_urlUS_}/screener/predefined/undervalued_large_caps?offset={offset}&count={count}"
     return table_to_dict(pandas.read_html(requests.get(site, headers=default_headers).text)[0], skip=1)
 
 

@@ -1,4 +1,4 @@
-# reload+after+2024-05-03 23:48:38.573052
+# reload+after+2024-05-15 00:02:01.082485
 AACI§Armada Acquisition Corp. I§Common Stock
 AACIU§Armada Acquisition Corp. I§Unit
 AACIW§Armada Acquisition Corp. I§Warrant
@@ -132,6 +132,7 @@ AGEN§Agenus Inc.§Common Stock
 AGFY§Agrify Corporation§Common Stock
 AGIO§Agios Pharmaceuticals, Inc.§Common Stock
 AGMH§AGM Group Holdings Inc.§Class A Ordinary Shares
+AGMI§Themes Silver Miners ETF
 AGNC§AGNC Investment Corp.§Common Stock
 AGNCL§AGNC Investment Corp.§Depositary Shares Each Representing a 1/1,000th Interest in a Share of 7.75% Series G Fixed-Rate Reset Cumulative Redeemable Preferred Stock
 AGNCM§AGNC Investment Corp.§Depositary Shares rep 6.875% Series D Fixed-to-Floating Cumulative Redeemable Preferred Stock
@@ -678,7 +679,7 @@ BRNS§Barinthus Biotherapeutics plc§American Depositary Shares
 BRNY§Burney U.S. Factor Rotation ETF
 BROG§Brooge Energy Limited §Ordinary Shares
 BROGW§Brooge Energy Limited §Warrant
-BRP§BRP Group, Inc.§Class A Common Stock
+BRP§The Baldwin Insurance Group, Inc.§Class A Common Stock
 BRRR§Valkyrie Bitcoin Fund
 BRSH§Bruush Oral Care Inc.§Common Stock
 BRSHW§Bruush Oral Care Inc.§Warrant
@@ -830,6 +831,7 @@ CCD§Calamos Dynamic Convertible & Income Fund§Closed End Fund
 CCEP§Coca-Cola Europacific Partners plc§Ordinary Shares
 CCG§Cheche Group Inc.§Class A Ordinary Shares
 CCGWW§Cheche Group Inc.§Warrant
+CCIXU§Churchill Capital Corp IX§Unit
 CCLD§CareCloud, Inc.§Common Stock
 CCLDO§CareCloud, Inc.§8.75% Series B Cumulative Redeemable Perpetual Preferred Stock
 CCLDP§CareCloud, Inc.§11% Series A Cumulative Redeemable Perpetual Preferred Stock
@@ -1061,9 +1063,6 @@ COMM§CommScope Holding Company, Inc.§Common Stock
 COMT§iShares GSCI Commodity Dynamic Roll Strategy ETF
 CONL§GraniteShares 2x Long COIN Daily ETF
 CONN§Conn's, Inc.§Common Stock
-CONX§CONX Corp.§Class A Common Stock
-CONXU§CONX Corp.§Unit
-CONXW§CONX Corp.§Warrant
 COO§The Cooper Companies, Inc. §Common Stock
 COOL§Corner Growth Acquisition Corp.§Class A Ordinary Shares
 COOLU§Corner Growth Acquisition Corp.§Unit
@@ -1402,7 +1401,6 @@ EGAN§eGain Corporation§Common Stock
 EGBN§Eagle Bancorp, Inc.§Common Stock
 EGHT§8x8 Inc§Common stock
 EGIO§Edgio, Inc.§Common Stock
-EGOX§Next.e.GO N.V.§Ordinary Shares
 EGRX§Eagle Pharmaceuticals, Inc.§Common Stock
 EH§EHang Holdings Limited§ADS
 EHLS§Even Herd Long Short ETF
@@ -1469,6 +1467,7 @@ ERIC§Ericsson§American Depositary Shares each representing 1 underlying Class 
 ERIE§Erie Indemnity Company§Class A Common Stock
 ERII§Energy Recovery, Inc.§Common Stock
 ERNA§Eterna Therapeutics Inc.§Common Stock
+ERNZ§TrueShares Active Yield ETF
 ESCA§Escalade, Incorporated§Common Stock
 ESEA§Euroseas Ltd.§Common Stock
 ESGD§iShares ESG Aware MSCI EAFE ETF
@@ -1785,7 +1784,6 @@ FUND§Sprott Focus Trust, Inc.§Closed End Fund
 FUSB§First US Bancshares, Inc.§Common Stock
 FUSN§Fusion Pharmaceuticals Inc.§Common Shares
 FUTU§Futu Holdings Limited§American Depositary Shares
-FUV§Arcimoto, Inc.§Common Stock
 FV§First Trust Dorsey Wright Focus 5 ETF
 FVC§First Trust Dorsey Wright Dynamic Focus 5 ETF
 FVCB§FVCBankcorp, Inc.§Common Stock
@@ -2171,7 +2169,8 @@ HYZNW§Hyzon Motors Inc.§Warrant
 IAC§IAC Inc.§Common Stock
 IART§Integra LifeSciences Holdings Corporation§Common Stock
 IAS§Integral Ad Science Holding Corp.§Common Stock
-IBACU§IB Acquisition Corp.§Unit
+IBAC§IB Acquisition Corp.§Common Stock
+IBACR§IB Acquisition Corp.§Right
 IBAT§iShares Energy Storage & Materials ETF
 IBB§iShares Biotechnology ETF
 IBBQ§Invesco Nasdaq Biotechnology ETF
@@ -2603,9 +2602,6 @@ LGMK§LogicMark, Inc.§Common Stock
 LGND§Ligand Pharmaceuticals Incorporated§Common Stock
 LGO§Largo Inc.§Common Shares
 LGRO§Level Four Large Cap Growth Active ETF
-LGVC§LAMF Global Ventures Corp. I§Class A Ordinary Shares
-LGVCU§LAMF Global Ventures Corp. I§Unit
-LGVCW§LAMF Global Ventures Corp. I§Warrant
 LGVN§Longeveron Inc.§Class A Common stock
 LI§Li Auto Inc.§American Depositary Shares
 LICN§Lichen China Limited§Class A Ordinary Shares
@@ -2761,9 +2757,9 @@ MBOT§Microbot Medical Inc. §Common Stock
 MBRX§Moleculin Biotech, Inc.§Common Stock
 MBUU§Malibu Boats, Inc.§Common Stock
 MBWM§Mercantile Bank Corporation§Common Stock
-MCAA§Mountain & Co. I Acquisition Corp.§Class A Ordinary Shares
-MCAAU§Mountain & Co. I Acquisition Corp.§Unit
-MCAAW§Mountain & Co. I Acquisition Corp.§Warrant
+MCAA§Mountain §Class A Ordinary Shares
+MCAAU§Mountain §Unit
+MCAAW§Mountain §Warrant
 MCAC§Monterey Capital Acquisition Corporation§Class A Common Stock
 MCACR§Monterey Capital Acquisition Corporation§Rights
 MCACU§Monterey Capital Acquisition Corporation§Unit
@@ -3118,6 +3114,8 @@ NURO§NeuroMetrix, Inc.§Common Stock
 NUSB§Nuveen Ultra Short Income ETF
 NUTX§Nutex Health Inc.§Common Stock
 NUVL§Nuvalent, Inc.§Class A Common Stock
+NUVO§Holdco Nuvo Group D.G Ltd.§Ordinary Shares
+NUVOW§Holdco Nuvo Group D.G Ltd.§Warrants
 NUWE§Nuwellis, Inc.§Common Stock
 NUZE§NuZee, Inc.§Common Stock
 NVAC§NorthView Acquisition Corporation§Common Stock
@@ -3236,7 +3234,6 @@ OMEX§Odyssey Marine Exploration, Inc.§Common Stock
 OMGA§Omega Therapeutics, Inc.§Common Stock
 OMH§Ohmyhome Limited§Ordinary Shares
 OMIC§Singular Genomics Systems, Inc.§Common Stock
-OMQS§OMNIQ Corp.§Common Stock
 ON§ON Semiconductor Corporation§Common Stock
 ONB§Old National Bancorp§Common Stock
 ONBPO§Old National Bancorp§Depositary Shares, Each Representing a 1/40th Interest in a Share of Series C Preferred Stock
@@ -3544,6 +3541,7 @@ PSMT§PriceSmart, Inc.§Common Stock
 PSNL§Personalis, Inc.§Common Stock
 PSNY§Polestar Automotive Holding UK Limited§Class A ADS
 PSNYW§Polestar Automotive Holding UK Limited§Class C-1 ADS (ADW)
+PSTR§PeakShares Sector Rotation ETF
 PSTV§PLUS THERAPEUTICS, Inc.§Common Stock
 PSTX§Poseida Therapeutics, Inc.§Common Stock
 PSWD§Xtrackers Cybersecurity Select Equity ETF
@@ -3584,7 +3582,6 @@ PWUPW§PowerUp Acquisition Corp.§Warrant
 PXDT§Pixie Dust Technologies, Inc.§ADS, each representing one common share
 PXI§Invesco Dorsey Wright Energy Momentum ETF
 PXLW§Pixelworks, Inc.§Common Stock
-PXMD§PaxMedica, Inc.§Common stock
 PXS§Pyxis Tankers Inc.§Common Stock
 PXSAP§Pyxis Tankers Inc.§7.75% Series A Cumulative Convertible Preferred Shares
 PXSAW§Pyxis Tankers Inc.§Warrant
@@ -3662,9 +3659,6 @@ QVAL§Alpha Architect U.S. Quantitative Value ETF
 QYLD§Global X NASDAQ 100 Covered Call ETF
 QYLE§Global X Nasdaq 100 ESG Covered Call ETF
 QYLG§Global X Nasdaq 100 Covered Call & Growth ETF
-RACY§Relativity Acquisition Corp.§Class A Common Stock
-RACYU§Relativity Acquisition Corp.§Unit
-RACYW§Relativity Acquisition Corp.§Warrant
 RAIL§Freightcar America, Inc.§Common Stock
 RAND§Rand Capital Corporation§Closed End Fund
 RANI§Rani Therapeutics Holdings, Inc.§Class A Common Stock
@@ -3864,7 +3858,6 @@ SATL§Satellogic Inc.§Class A Ordinary Shares
 SATLW§Satellogic Inc.§Warrant
 SATS§EchoStar Corporation§Common stock
 SAVA§Cassava Sciences, Inc.§Common Stock
-SAVAW§Cassava Sciences, Inc.§Warrant
 SBAC§SBA Communications Corporation§Class A Common Stock
 SBCF§Seacoast Banking Corporation of Florida§Common Stock
 SBET§SharpLink Gaming, Inc.§Common Stock
@@ -3951,6 +3944,8 @@ SHIM§Shimmick Corporation§Common Stock
 SHIP§Seanergy Maritime Holdings Corp.§Common Stock
 SHLS§Shoals Technologies Group, Inc.§Class A Common Stock
 SHLT§SHL Telemedicine Ltd§American Depositary Shares
+SHMD§SCHMID Group N.V.§Class A Ordinary Shares
+SHMDW§SCHMID Group N.V.§Warrants
 SHOO§Steven Madden, Ltd.§Common Stock
 SHOT§Safety Shot, Inc.§Common Stock
 SHOTW§Safety Shot, Inc.§Warrant
@@ -4024,7 +4019,6 @@ SMFL§Smart for Life, Inc.§Common Stock
 SMH§VanEck Semiconductor ETF
 SMID§Smith-Midland Corporation§Common Stock
 SMLR§Semler Scientific, Inc.§Common Stock
-SMMF§Summit Financial Group, Inc.§Common Stock
 SMMT§Summit Therapeutics Inc. §Common Stock
 SMPL§The Simply Good Foods Company§Common Stock
 SMRI§Bushido Capital US Equity ETF
@@ -4077,6 +4071,7 @@ SOPH§SOPHiA GENETICS SA§Ordinary Shares
 SOTK§Sono-Tek Corporation§Common Stock
 SOUN§SoundHound AI, Inc.§Class A Common Stock
 SOUNW§SoundHound AI, Inc.§Warrant
+SOWG§Sow Good Inc.§Common Stock
 SOXQ§Invesco PHLX Semiconductor ETF
 SOXX§iShares Semiconductor ETF
 SP§SP Plus Corporation§Common Stock
@@ -4688,6 +4683,7 @@ WCLD§WisdomTree Cloud Computing Fund
 WDAY§Workday, Inc.§Class A Common Stock
 WDC§Western Digital Corporation§Common Stock
 WDFC§WD-40 Company§Common Stock
+WEEI§Westwood Salient Enhanced Energy Income ETF
 WEN§Wendy's Company (The)§Common Stock
 WERN§Werner Enterprises, Inc.§Common Stock
 WEST§Westrock Coffee Company§Common Stock
