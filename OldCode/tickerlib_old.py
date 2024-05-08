@@ -21,12 +21,6 @@ default_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Appl
                                  'Chrome/120.0.0.0 Safari/537.3'}
 
 
-# connect to the ticker database
-_ticker_db = sqlite3.connect("TickerDataOld/ticker.db")
-_ticker_db.execute("CREATE TABLE IF NOT EXISTS profile (ticker TEXT PRIMARY KEY, refresh_time TEXT, profile_data TEXT,"
-                   " UNIQUE(ticker))")
-
-
 def _site_scraper_(site):  # load website so all contents can be scraped
     _data = {}
     for table in pandas.read_html(requests.get(site, headers=default_headers).text):
@@ -224,8 +218,8 @@ def load_ticker_info(_ticker):
 # START OF CACHE LOAD SYSTEM - Before this line no file manipulation
 
 
-if not os.path.exists("TickerData"):
-    os.mkdir("TickerData")
+if not os.path.exists("../TickerData"):
+    os.mkdir("../TickerData")
     print("Created TickerData directory...")
 else:
     print("Found TickerData directory...")

@@ -35,6 +35,8 @@ def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
                 nsd_names.append("")
                 nsd_type.append(ticker_list[i+2])
 
+    print(nsd_tickers, nsd_names, nsd_type)
+    input()
     return nsd_tickers, nsd_names, nsd_type
 
 
@@ -107,3 +109,18 @@ def get_ftse250():  # UK 250
         ftse250_names.append(table.values[i][0])
         ftse250_data.append(table.values[i][2])
     return (ftse250_tickers), (ftse250_names), (ftse250_data)
+
+
+def get_index(index_name):  # Returns the tickers, names, and other info of the index
+    if index_name == "SP500":
+        return get_sp500()
+    elif index_name == "DOW":
+        return get_dow()
+    elif index_name == "NIFTY50":
+        return get_nifty50()
+    elif index_name == "FTSE100":
+        return get_ftse100()
+    elif index_name == "FTSE250":
+        return get_ftse250()
+    else:
+        return None, None, None
