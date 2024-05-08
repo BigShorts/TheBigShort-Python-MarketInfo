@@ -22,7 +22,7 @@ default_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Appl
 
 
 # connect to the ticker database
-_ticker_db = sqlite3.connect("DataMining/TickerData/ticker.db")
+_ticker_db = sqlite3.connect("TickerDataOld/ticker.db")
 _ticker_db.execute("CREATE TABLE IF NOT EXISTS profile (ticker TEXT PRIMARY KEY, refresh_time TEXT, profile_data TEXT,"
                    " UNIQUE(ticker))")
 
@@ -45,16 +45,6 @@ def table_to_dict(table, skip: int = 0):
             _data_.update({str(table.index[i]): [x for x in value]})
 
     return _data_
-
-
-def _tickers_sp500_():  # Downloads list of tickers currently listed in the S&P 500
-    sp500 = pandas.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")[0]
-    sp_tickers = []
-    for i in range(len(sp500)):
-        sp_tickers.append(f"{sp500.values[i][0]}§{sp500.values[i][1]}§{sp500.values[i][2]}§"
-                          f" {sp500.values[i][3]}§{sp500.values[i][4]}§{sp500.values[i][6]}")
-
-    return sp_tickers
 
 
 def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
@@ -93,81 +83,12 @@ def _tickers_us_other_():  # Nasdaq other, funds, etfs, etc.
     return _nasdaq_trader_("otherlisted")
 
 
-def _tickers_dow_():  # Dow_Jones_Industrial_Average
-    site = "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average"
-    table = pandas.read_html(site, attrs={"id": "constituents"})[0]
-    dow_tickers = []
-    for i in range(len(table)):
-        dow_tickers.append(f"{table.values[i][2]}§{table.values[i][0]}§{table.values[i][6]}§{table.values[i][1]}§"
-                           f"{table.values[i][3]}")
-
-    return dow_tickers
-
-
-def _tickers_nifty50_():  # NIFTY 50, India
-    site = "https://en.wikipedia.org/wiki/NIFTY_50"
-    table = pandas.read_html(site, attrs={"id": "constituents"})[0]
-    _nifty50 = []
-    for i in range(len(table)):
-        _nifty50.append(f"{table.values[i][1]}§{table.values[i][0]}§{table.values[i][2]}")
-
-    return _nifty50
-
-
-def _tickers_ftse100_():  # UK 100
-    table = pandas.read_html("https://en.wikipedia.org/wiki/FTSE_100_Index", attrs={"id": "constituents"})[0]
-    _ftse100 = []
-    for i in range(len(table)):
-        if str(table.values[i][1]).endswith("."):
-            _ftse100.append(f"{table.values[i][1]}L§{table.values[i][0]}§{table.values[i][2]}")
-        else:
-            _ftse100.append(f"{table.values[i][1]}.L§{table.values[i][0]}§{table.values[i][2]}")
-    return _ftse100
-
-
-def _tickers_ftse250_():  # UK 250
-    table = pandas.read_html("https://en.wikipedia.org/wiki/FTSE_250_Index", attrs={"id": "constituents"})[0]
-    _ftse250 = []
-    for i in range(len(table)):
-        if str(table.values[i][1]).endswith("."):
-            _ftse250.append(f"{table.values[i][1]}L§{table.values[i][0]}§{table.values[i][2]}")
-        else:
-            _ftse250.append(f"{table.values[i][1]}.L§{table.values[i][0]}§{table.values[i][2]}")
-    return _ftse250
-
-
-def __writer__(file, refresh_days):
-    with open(f"DataMining/TickerData/{file}.txt", "w", encoding="utf-8") as f:
-        f.write(f"# reload+after+{datetime.datetime.now()+datetime.timedelta(days=refresh_days)}\n")
-        if file == "sp_500":
-            ticker_data = _tickers_sp500_()
-        elif file == "nasdaq":
-            ticker_data = _tickers_nasdaq_()
-        elif file == "nasdaq_other":
-            ticker_data = _tickers_us_other_()
-        elif file == "dow_jones":
-            ticker_data = _tickers_dow_()
-        elif file == "nifty50":
-            ticker_data = _tickers_nifty50_()
-        elif file == "ftse100":
-            ticker_data = _tickers_ftse100_()
-        elif file == "ftse250":
-            ticker_data = _tickers_ftse250_()
-
-        ticker_info = []
-        for ticker in ticker_data:
-            f.write(f"{ticker}\n")
-            ticker_info.append(ticker.split("§"))
-
-    return ticker_info
-
-
 def _refresh_ticker_data_(file, refresh_days):
-    if not os.path.exists(f"DataMining/TickerData/{file}.txt"):
+    if not os.path.exists(f"TickerData/{file}.txt"):
         print(f"Downloading {file} tickers...")
         ticker_info = __writer__(file, refresh_days)
     else:
-        with open(f"DataMining/TickerData/{file}.txt", "r", encoding="utf-8") as f:
+        with open(f"TickerData/{file}.txt", "r", encoding="utf-8") as f:
             file_time = datetime.datetime.strptime(f.readline().split("+")[2].replace("\n", ""),
                                                    "%Y-%m-%d %H:%M:%S.%f")
             if file_time < datetime.datetime.now():
@@ -182,7 +103,7 @@ def _refresh_ticker_data_(file, refresh_days):
 
 
 def __lse_writer__(lse_data, file, refresh_days):
-    with open(f"DataMining/TickerData/{file}.txt", "w", encoding="utf-8") as f:
+    with open(f"TickerData/{file}.txt", "w", encoding="utf-8") as f:
         f.write(f"# reload+after+{datetime.datetime.now() + datetime.timedelta(days=refresh_days)}\n")
         for ticker in lse_data:
             line = ""
@@ -198,7 +119,7 @@ def __lse_writer__(lse_data, file, refresh_days):
 
 
 def __lse_reader__():
-    if not os.path.exists(f"DataMining/TickerData/lse.xlsx"):
+    if not os.path.exists(f"TickerData/lse.xlsx"):
         print("LSE tickers not found, please download the file from "
               "https://www.londonstockexchange.com/reports?tab=instruments, then save it as lse.xlsx in the "
               "TickerData folder")
@@ -210,15 +131,15 @@ def __lse_reader__():
         all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
         __lse_writer__(all_eq, "lse", 31)
         __lse_writer__(all_no_eq, "lse_eq", 31)
-        os.rename("DataMining/TickerData/lse.xlsx", "DataMining/TickerData/lse_old.xlsx")
+        os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
         return all_eq, all_no_eq
 
 
 def _refresh_lse_tickers_():
-    if not os.path.exists(f"DataMining/TickerData/lse.txt") or not os.path.exists(f"DataMining/TickerData/lse_eq.txt"):
+    if not os.path.exists(f"TickerData/lse.txt") or not os.path.exists(f"TickerData/lse_eq.txt"):
         return __lse_reader__()
     else:
-        with open(f"DataMining/TickerData/lse.txt", "r", encoding="utf-8") as f:
+        with open(f"TickerData/lse.txt", "r", encoding="utf-8") as f:
             file_time = datetime.datetime.strptime(f.readline().split("+")[2].replace("\n", ""),
                                                    "%Y-%m-%d %H:%M:%S.%f")
             if file_time < datetime.datetime.now():
@@ -229,7 +150,7 @@ def _refresh_lse_tickers_():
                 for ticker in f.readlines():
                     _lse_.append(ticker.replace("\n", "").split("§"))
                 _lse_eq_ = []
-                with open(f"DataMining/TickerData/lse_eq.txt", "r", encoding="utf-8") as g:
+                with open(f"TickerData/lse_eq.txt", "r", encoding="utf-8") as g:
                     for ticker in g.readlines()[1:]:
                         _lse_eq_.append(ticker.replace("\n", "").split("§"))
                 return _lse_, _lse_eq_
@@ -303,8 +224,8 @@ def load_ticker_info(_ticker):
 # START OF CACHE LOAD SYSTEM - Before this line no file manipulation
 
 
-if not os.path.exists("DataMining/TickerData"):
-    os.mkdir("DataMining/TickerData")
+if not os.path.exists("TickerData"):
+    os.mkdir("TickerData")
     print("Created TickerData directory...")
 else:
     print("Found TickerData directory...")
@@ -313,20 +234,20 @@ else:
 # type index: [ticker, company, other data]
 # type weighted index: [ticker, company, weight, other data]
 
-_sp_500 = _refresh_ticker_data_("sp_500", 7)  # type index
-_nasdaq = _refresh_ticker_data_("nasdaq", 7)  # type tickers
-_nasdaq_other = _refresh_ticker_data_("nasdaq_other", 7)  # type tickers
-_dow_jones = _refresh_ticker_data_("dow_jones", 7)  # type weighted index
-_nifty50 = _refresh_ticker_data_("nifty50", 7)  # type index
-_ftse100 = _refresh_ticker_data_("ftse100", 7)  # type index
-_ftse250 = _refresh_ticker_data_("ftse250", 7)  # type index
-_lse, _lse_eq = _refresh_lse_tickers_()  # type tickers
+#_sp_500 = _refresh_ticker_data_("sp_500", 7)  # type index
+#_nasdaq = _refresh_ticker_data_("nasdaq", 7)  # type tickers
+#_nasdaq_other = _refresh_ticker_data_("nasdaq_other", 7)  # type tickers
+#_dow_jones = _refresh_ticker_data_("dow_jones", 7)  # type weighted index
+#_nifty50 = _refresh_ticker_data_("nifty50", 7)  # type index
+#_ftse100 = _refresh_ticker_data_("ftse100", 7)  # type index
+#_ftse250 = _refresh_ticker_data_("ftse250", 7)  # type index
+#_lse, _lse_eq = _refresh_lse_tickers_()  # type tickers
 
-_tickers = {'nasdaq': _nasdaq, 'lse': _lse}
-_tickers_other = {'nasdaq_other': _nasdaq_other, 'lse_eq': _lse_eq}
-_tickers_all = {'nasdaq': _nasdaq, 'nasdaq_other': _nasdaq_other, 'lse': _lse, 'lse_eq': _lse_eq}
-_indexes = {'sp_500': _sp_500, 'dow_jones': _dow_jones, 'nifty50': _nifty50,
-            'ftse100': _ftse100, 'ftse250': _ftse250}
+#_tickers = {'nasdaq': _nasdaq, 'lse': _lse}
+#_tickers_other = {'nasdaq_other': _nasdaq_other, 'lse_eq': _lse_eq}
+#_tickers_all = {'nasdaq': _nasdaq, 'nasdaq_other': _nasdaq_other, 'lse': _lse, 'lse_eq': _lse_eq}
+#_indexes = {'sp_500': _sp_500, 'dow_jones': _dow_jones, 'nifty50': _nifty50,
+#            'ftse100': _ftse100, 'ftse250': _ftse250}
 
 print("Loaded tickers and indexes successfully...\n-------------------------------------------")
 
@@ -588,3 +509,6 @@ class _Ticker:
     # todo table_to_dict this function
     def shares_full(self, start=None, end=None):  # returns table
         return self._ticker_obj_.get_shares_full(start=start, end=end)
+
+
+_nasdaq_trader_("nasdaqlisted")

@@ -1,4 +1,4 @@
-import DataMining.tickers_and_cache as tnc
+import tickers_and_cache as tnc
 
 earnings_for_day = tnc.earnings_for_date_us("2024-05-03")
 print(earnings_for_day)
