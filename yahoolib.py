@@ -20,9 +20,9 @@ _index_db = sqlite3.connect("TickerData/indexes.db", check_same_thread=False)
 
 # code to create the index tables
 def create_index_table(index_name):
-    _index_db.execute(f"CREATE TABLE IF NOT EXISTS {index_name} (tickers TEXT PRIMARY KEY, company_names TEXT, "
+    _index_db.execute(f"CREATE TABLE IF NOT EXISTS {index_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
                       f"other_info TEXT)")
-    _index_db.execute(f"CREATE TABLE IF NOT EXISTS refresh_times (index_name TEXT PRIMARY KEY, refresh_time TEXT)")
+    _index_db.execute(f"CREATE TABLE IF NOT EXISTS idx_refresh_times (index_name TEXT PRIMARY KEY, refresh_time TEXT)")
 
 
 # list of supported indexes, can be expanded
@@ -39,12 +39,13 @@ supported_index_list = [supported_index_dict[index][0]+"_"+index for index in su
 # todo build this
 def create_exchange_table(exchange_name):
     _index_db.execute(f"CREATE TABLE IF NOT EXISTS {exchange_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
-                      f"refresh_time TEXT, profile_data TEXT, price_target FLOAT, growth_estimate FLOAT, "
-                      f"action_suggest FLOAT, valuation FLOAT, UNIQUE(ticker))")
+                      f"other_info TEXT, refresh_time TEXT, profile_data TEXT, price_target FLOAT, "
+                      f"growth_estimate FLOAT, action_suggest FLOAT, valuation FLOAT, UNIQUE(ticker))")
+    _index_db.execute(f"CREATE TABLE IF NOT EXISTS exc_refresh_times (exchange_name TEXT PRIMARY KEY, refresh_time TEXT)")
 
 
 # list of supported exchanges
-supported_exchange_list = ["NASDAQ", "NYSE", "LSE"]
+supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]
 
 # loop to create the exchange tables
 [create_exchange_table(exchange) for exchange in supported_exchange_list]
@@ -52,9 +53,9 @@ supported_exchange_list = ["NASDAQ", "NYSE", "LSE"]
 
 def write_index(index_name, refresh_days, tickers, names, other_info):
     for i in range(len(tickers)):
-        _index_db.execute(f"INSERT OR REPLACE INTO {index_name} (tickers, company_names, other_info) "
-                          f"VALUES (?, ?, ?)",(tickers[i], names[i], other_info[i]))
-    _index_db.execute(f"INSERT OR REPLACE INTO refresh_times (index_name, refresh_time) VALUES (?, ?)",
+        _index_db.execute(f"INSERT OR REPLACE INTO {index_name} (ticker, company_name, other_info) "
+                          f"VALUES (?, ?, ?)", (tickers[i], names[i], other_info[i]))
+    _index_db.execute(f"INSERT OR REPLACE INTO idx_refresh_times (index_name, refresh_time) VALUES (?, ?)",
                       (index_name, datetime.datetime.now() + datetime.timedelta(days=refresh_days)))
     _index_db.commit()
 
@@ -71,17 +72,16 @@ def load_index(index_name, return_type="tickers"):
                 break
 
         # check if the index needs to be refreshed by checking the refresh time
-        refresh_time = _index_db.execute(f"SELECT refresh_time FROM refresh_times WHERE "
+        refresh_time = _index_db.execute(f"SELECT refresh_time FROM idx_refresh_times WHERE "
                                          f"index_name = '{index_full_name}'").fetchone()
         if refresh_time:
             if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
-                tickers = [str(index)[2:-3] for index in (_index_db.execute(f"SELECT tickers FROM {index_full_name}").fetchall())]
-                names = _index_db.execute(f"SELECT company_names FROM {index_full_name}").fetchall()
+                tickers = [str(index)[2:-3] for index in (_index_db.execute(f"SELECT ticker FROM {index_full_name}").fetchall())]
+                names = _index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()
                 other_info = _index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()
         else:
             refresh_days = supported_index_dict[index_name][1]
             tickers, names, other_info = get_index(index_name)
-            tickers.sort(), names.sort(), other_info.sort()
             write_index(index_full_name, refresh_days, tickers, names, other_info)
 
         if return_type == "tickers":
@@ -97,8 +97,43 @@ def load_index(index_name, return_type="tickers"):
 
 
 # check for index refreshes
-for index in supported_index_list:
+for index in supported_index_dict.keys():
     load_index(index)
+
+
+def write_exchange(exchange, refresh_days, tickers, company_names, other_info):
+    for i in range(len(tickers)):
+        _index_db.execute(f"INSERT OR REPLACE INTO {exchange} (ticker, company_name, other_info) VALUES (?, ?, ?)",
+                          (tickers[i], company_names[i], other_info[i]))
+    _index_db.execute(f"INSERT OR REPLACE INTO exc_refresh_times (exchange_name, refresh_time) VALUES (?, ?)",
+                      (exchange, datetime.datetime.now() + datetime.timedelta(refresh_days)))
+    _index_db.commit()
+
+
+def load_exchange(exchange):
+    if exchange in supported_exchange_list:
+        # check if the exchange needs to be refreshed by checking the refresh time
+        refresh_time = _index_db.execute(f"SELECT refresh_time FROM exc_refresh_times WHERE "
+                                         f"exchange_name = '{exchange}'").fetchone()
+        if refresh_time:
+            if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
+                tickers = [str(index)[2:-3] for index in (_index_db.execute(f"SELECT ticker FROM {exchange}").fetchall())]
+                names = _index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()
+                other_info = _index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()
+        else:
+            refresh_days = 3
+            tickers, names, other_info = get_exchange(exchange)
+            write_exchange(exchange, refresh_days, tickers, names, other_info)
+        return tickers, names, other_info
+    else:
+        return "Exchange not found"
+
+
+# check for exchange refreshes
+#for exchange in supported_exchange_list:
+#    load_exchange(exchange)
+load_exchange("NASDAQ")
+load_exchange("NASDAQ_OTHER")
 
 
 def load_indexes(exchange):

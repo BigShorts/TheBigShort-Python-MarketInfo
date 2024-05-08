@@ -16,7 +16,6 @@ def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
     splits = info.split("|")
 
     ticker_list = [x for x in splits if len(x) > 1]
-    ticker_data = []
     nsd_tickers, nsd_names, nsd_type = [], [], []
     for i in range(len(ticker_list)-4):
         if ticker_list[i] == "100" and "-" in ticker_list[i+2]:
@@ -30,21 +29,18 @@ def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
         elif ticker_list[i] == "100" and "-" not in ticker_list[i+2] and "test stock" not in ticker_list[i+2].lower():
             stock_ticker = ticker_list[i+1].split('\r\n')[1]
             if ".W" not in stock_ticker:
-                ticker_data.append(f"{stock_ticker}§{ticker_list[i+2]}")
                 nsd_tickers.append(stock_ticker)
                 nsd_names.append("")
                 nsd_type.append(ticker_list[i+2])
 
-    print(nsd_tickers, nsd_names, nsd_type)
-    input()
     return nsd_tickers, nsd_names, nsd_type
 
 
-def tickers_nasdaq():  # Nasdaq stocks
+def get_nasdaq():  # Nasdaq stocks
     return _nasdaq_trader_("nasdaqlisted")
 
 
-def tickers_us_other_():  # Nasdaq other, funds, etfs, etc.
+def get_us_other_():  # Nasdaq other, funds, etfs, etc.
     return _nasdaq_trader_("otherlisted")
 
 
@@ -122,5 +118,19 @@ def get_index(index_name):  # Returns the tickers, names, and other info of the 
         return get_ftse100()
     elif index_name == "FTSE250":
         return get_ftse250()
+    else:
+        return None, None, None
+
+
+# todo continue work
+def get_exchange(exchange_name):  # Returns the tickers, names, and other info of the exchange
+    if exchange_name == "NASDAQ":
+        return get_nasdaq()
+    elif exchange_name == "NASDAQ_OTHER":
+        return get_us_other_()
+    elif exchange_name == "NYSE":
+        return ""
+    elif exchange_name == "LSE":
+        return ""
     else:
         return None, None, None
