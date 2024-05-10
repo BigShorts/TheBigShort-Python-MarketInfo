@@ -1,6 +1,8 @@
 import pandas
 import ftplib
 import io
+import os
+import datetime
 
 ### exchange cache functions ###
 
@@ -42,6 +44,44 @@ def get_nasdaq():  # Nasdaq stocks
 
 def get_us_other_():  # Nasdaq other, funds, etfs, etc.
     return _nasdaq_trader_("otherlisted")
+
+
+def __lse_writer__(lse_data, lse_type, refresh_days):
+    # todo database writing of the two lse's
+
+
+    with open(f"TickerData/{lse_type}.txt", "w", encoding="utf-8") as f:
+        f.write(f"# reload+after+{datetime.datetime.now() + datetime.timedelta(days=refresh_days)}\n")
+        for ticker in lse_data:
+            line = ""
+            for i in range(len(ticker)):
+                if i == 0:
+                    if ticker[i].endswith("."):
+                        line += f"{ticker[i]}L§"
+                    else:
+                        line += f"{ticker[i]}.L§"
+                else:
+                    line += f"{ticker[i]}§"
+            f.write(f"{line[:-1]}\n")
+
+
+def get_lse():  # LSE stocks
+    if not os.path.exists(f"TickerData/lse.xlsx"):
+        print("LSE tickers not found, please download the file from "
+              "https://www.londonstockexchange.com/reports?tab=instruments, then save it as lse.xlsx in the "
+              "TickerData folder")
+        exit()
+    else:
+        print(f"Downloading lse tickers...")
+        _data = pandas.read_excel(f"TickerData/lse.xlsx", None)
+        all_eq = _data['1.0 All Equity'].values.tolist()[8:]
+        all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
+        __lse_writer__(all_eq, "lse_eq", 31)
+        __lse_writer__(all_no_eq, "lse_non_eq", 31)
+        os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
+        return all_eq, all_no_eq
+
+
 
 
 ### index cache functions ###
@@ -131,6 +171,6 @@ def get_exchange(exchange_name):  # Returns the tickers, names, and other info o
     elif exchange_name == "NYSE":
         return ""
     elif exchange_name == "LSE":
-        return ""
+        return get_lse()
     else:
         return None, None, None

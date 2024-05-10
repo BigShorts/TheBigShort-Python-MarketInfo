@@ -9,11 +9,6 @@ import os
 if not os.path.exists("TickerData"):
     os.mkdir("TickerData")
 
-# connect to the ticker database
-_ticker_db = sqlite3.connect("TickerData/ticker.db", check_same_thread=False)
-_ticker_db.execute("CREATE TABLE IF NOT EXISTS profile (ticker TEXT PRIMARY KEY, refresh_time TEXT, profile_data TEXT,"
-                   " UNIQUE(ticker))")
-
 # connect to the index database
 _index_db = sqlite3.connect("TickerData/indexes.db", check_same_thread=False)
 
@@ -45,7 +40,7 @@ def create_exchange_table(exchange_name):
 
 
 # list of supported exchanges
-supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]
+supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]#, "LSE_NON_EQ"]
 
 # loop to create the exchange tables
 [create_exchange_table(exchange) for exchange in supported_exchange_list]
@@ -74,12 +69,13 @@ def load_index(index_name, return_type="tickers"):
         # check if the index needs to be refreshed by checking the refresh time
         refresh_time = _index_db.execute(f"SELECT refresh_time FROM idx_refresh_times WHERE "
                                          f"index_name = '{index_full_name}'").fetchone()
+        tickers = None
         if refresh_time:
             if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
                 tickers = [str(index)[2:-3] for index in (_index_db.execute(f"SELECT ticker FROM {index_full_name}").fetchall())]
-                names = _index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()
-                other_info = _index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()
-        else:
+                names = [str(name)[2:-3] for name in _index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()]
+                other_info = [str(info)[2:-3] for info in _index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()]
+        if not tickers:
             refresh_days = supported_index_dict[index_name][1]
             tickers, names, other_info = get_index(index_name)
             write_index(index_full_name, refresh_days, tickers, names, other_info)
@@ -110,21 +106,27 @@ def write_exchange(exchange, refresh_days, tickers, company_names, other_info):
     _index_db.commit()
 
 
-def load_exchange(exchange):
+def load_exchange(exchange, return_type="tickers"):
     if exchange in supported_exchange_list:
         # check if the exchange needs to be refreshed by checking the refresh time
         refresh_time = _index_db.execute(f"SELECT refresh_time FROM exc_refresh_times WHERE "
                                          f"exchange_name = '{exchange}'").fetchone()
+        tickers = None
         if refresh_time:
             if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
-                tickers = [str(index)[2:-3] for index in (_index_db.execute(f"SELECT ticker FROM {exchange}").fetchall())]
-                names = _index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()
-                other_info = _index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()
-        else:
+                tickers = [str(index)[2:-3] for index in _index_db.execute(f"SELECT ticker FROM {exchange}").fetchall()]
+                names = [str(name)[2:-3] for name in _index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()]
+                other_info = [str(info)[2:-3] for info in _index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()]
+        if not tickers:
             refresh_days = 3
             tickers, names, other_info = get_exchange(exchange)
             write_exchange(exchange, refresh_days, tickers, names, other_info)
-        return tickers, names, other_info
+        if return_type == "tickers":
+            return tickers
+        elif return_type == "names":
+            return names
+        elif return_type == "other_info":
+            return str(tickers)+"\n"+str(other_info)
     else:
         return "Exchange not found"
 
@@ -134,6 +136,7 @@ def load_exchange(exchange):
 #    load_exchange(exchange)
 load_exchange("NASDAQ")
 load_exchange("NASDAQ_OTHER")
+load_exchange("LSE")
 
 
 def load_indexes(exchange):

@@ -13,13 +13,18 @@ def test():
 
 
 @app.route('/index/<index_name>/<return_type>')
-def get_index(index_name, return_type="tickers"):
+def get_index(index_name, return_type):
     return load_index(index_name, return_type)
 
 
 @app.route('/indexes/<exchange>')
 def get_indexes(exchange):
     return load_indexes(exchange)
+
+
+@app.route('/exchange/<exchange>/<return_type>')
+def get_exchange(exchange, return_type):
+    return load_exchange(exchange, return_type)
 
 
 # called when profile needs force update
@@ -30,5 +35,5 @@ def profile(ticker):
 
 @app.route('/trigger')
 def trigger():
-    return iec.tickers_nasdaq()
+    return get_nasdaq()
 

@@ -9,7 +9,6 @@ import datetime
 import pandas
 import yfinance  # https://github.com/ranaroussi/yfinance
 # todo check for new API access points, price targets and upgrades and downgrades useful
-import sqlite3
 
 # This file contains TNS, cache based functions and the Ticker class
 # HEAVILY MODIFIED FROM YAHOO-FIN LIBRARY AT: https://pypi.org/project/yahoo-fin/#history
@@ -39,42 +38,6 @@ def table_to_dict(table, skip: int = 0):
             _data_.update({str(table.index[i]): [x for x in value]})
 
     return _data_
-
-
-def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
-    ftp = ftplib.FTP("ftp.nasdaqtrader.com")
-    ftp.login()
-    ftp.cwd("SymbolDirectory")
-
-    r = io.BytesIO()
-    ftp.retrbinary(f'RETR {search_param}.txt', r.write)
-
-    info = r.getvalue().decode()
-    splits = info.split("|")
-
-    ticker_list = [x for x in splits if len(x) > 1]
-    ticker_data = []
-    for i in range(len(ticker_list)-4):
-        if ticker_list[i] == "100" and "-" in ticker_list[i+2]:
-            stock_ticker = ticker_list[i+1].split('\r\n')[1]
-            stock_name = ticker_list[i+2].split(" - ")[0]
-            stock_type = str(ticker_list[i+2].split(" - ")[1:])[2:-2]
-            if ".W" not in stock_ticker:
-                ticker_data.append(f"{stock_ticker}§{stock_name}§{stock_type}")
-        elif ticker_list[i] == "100" and "-" not in ticker_list[i+2] and "test stock" not in ticker_list[i+2].lower():
-            stock_ticker = ticker_list[i+1].split('\r\n')[1]
-            if ".W" not in stock_ticker:
-                ticker_data.append(f"{stock_ticker}§{ticker_list[i+2]}")
-
-    return ticker_data
-
-
-def _tickers_nasdaq_():  # Nasdaq stocks
-    return _nasdaq_trader_("nasdaqlisted")
-
-
-def _tickers_us_other_():  # Nasdaq other, funds, etfs, etc.
-    return _nasdaq_trader_("otherlisted")
 
 
 def _refresh_ticker_data_(file, refresh_days):
@@ -123,6 +86,8 @@ def __lse_reader__():
         _data = pandas.read_excel(f"DataMining/TickerData/lse.xlsx", None)
         all_eq = _data['1.0 All Equity'].values.tolist()[8:]
         all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
+        print(all_eq)
+        input()
         __lse_writer__(all_eq, "lse", 31)
         __lse_writer__(all_no_eq, "lse_eq", 31)
         os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
