@@ -6,6 +6,7 @@ import datetime
 
 ### exchange cache functions ###
 
+
 def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
     ftp = ftplib.FTP("ftp.nasdaqtrader.com")
     ftp.login()
@@ -81,8 +82,6 @@ def get_lse():  # LSE stocks
         __lse_writer__(all_no_eq, "lse_non_eq", 31)
         os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
         return all_eq, all_no_eq
-
-
 
 
 ### index cache functions ###

@@ -50,8 +50,8 @@ def table_to_dict(table, skip: int = 0):
     return _data_
 
 
-# todo build looper over all
-def raw_daily_info(site, uk=False, multiple_pages=False, sort_by_element=None, skip=0):
+# todo auto detect uk flag
+def raw_daily_info(site, market, multiple_pages=False, sort_by_element=None, skip=0):
     tables_list = []
     session = requests_html.HTMLSession()
     resp = session.get(f"{site}?count=100")
@@ -69,11 +69,13 @@ def raw_daily_info(site, uk=False, multiple_pages=False, sort_by_element=None, s
         df = tables[0].copy()
         df.columns = tables[0].columns
 
-        if uk:
+        # todo add german de market
+        if market == "uk":
             del df["52-week range"]
             df["% change"] = df["% change"].map(lambda x: float(x.strip("%").replace(",", "")))
-        else:
+        if market == "us":
             del df["52 Week Range"]
+            df["% Change"] = df["% Change"].map(lambda x: float(x.strip("%").replace(",", "")))
         fields_to_change = [x for x in df.columns.tolist() if "Vol" in x or x == "Market Cap"]
 
         for field in fields_to_change:
@@ -96,6 +98,7 @@ def raw_daily_info(site, uk=False, multiple_pages=False, sort_by_element=None, s
     # sort the table by the sort_by_element number item in the table
     if sort_by_element:
         if sort_by_element:
+            # todo could i use a loop instead of comprehension?
             if result_table[1][sort_by_element] is float:
                 result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
                                 item[1][sort_by_element], reverse=True)}
@@ -103,23 +106,14 @@ def raw_daily_info(site, uk=False, multiple_pages=False, sort_by_element=None, s
                 try:
                     result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
                                     float(item[1][sort_by_element]), reverse=True)}
-                # for removing %'s
                 except ValueError:
-                    result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
-                                    float(str(item[1][sort_by_element])[:-1]), reverse=True)}
+                    # todo fix errors for N/A's in fields
+                    input()
             for key, value in result_table.items():
                 print(str(result_table[key][sort_by_element]) + " ---- " + str(value))
 
     # use list comprehension to make list of dictionaries
     return [str(value)[2:-3] for key, value in result_table.items()]
-
-
-def day_most_active_us(offset: int = 0, count: int = 100):
-    return raw_daily_info(f"{_urlUS_}/most-active?offset={offset}&count={count}")
-
-
-def day_most_active_uk(offset: int = 0, count: int = 100):
-    return raw_daily_info(f"{_urlUK_}/most-active?offset={offset}&count={count}", True)
 
 
 def day_gainers_us(offset: int = 0, count: int = 100):

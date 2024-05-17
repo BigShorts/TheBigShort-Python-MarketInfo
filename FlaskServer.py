@@ -89,7 +89,7 @@ swagger = Swagger(app, template={
                 "responses": {"200": {"description": "Returns the most active stocks"}}
             }
         },
-        "/day_gainers/{market}": {
+        "/day_gainers/{market}/{sort_by}": {
             "get": {
                 "tags": ["Day changer events"],
                 "description": "Returns the top gaining stocks of the day in a specific market",
@@ -100,6 +100,14 @@ swagger = Swagger(app, template={
                         "type": "string", "required": True,
                         "description": "The market to get the top gaining stocks from",
                         "enum": ["us", "uk"]
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "Method to sort the stocks by",
+                        "enum": ["percent_change", "market_cap"]
                     }
                 ],
                 "responses": {"200": {"description": "Returns the top gaining stocks"}}
@@ -240,6 +248,7 @@ def profile(ticker):
 
 _urlUS_ = "https://finance.yahoo.com"
 _urlUK_ = "https://uk.finance.yahoo.com"
+_urlDE_ = "https://de.finance.yahoo.com"  # todo add de (germany)
 
 
 # todo sort by market cap or change
@@ -250,20 +259,23 @@ def most_active(market, sort_by):
     else:
         element = 7
     if market == "us":
-        return raw_daily_info(f"{_urlUS_}/most-active", multiple_pages=True, sort_by_element=element)
+        return raw_daily_info(f"{_urlUS_}/most-active", "us", multiple_pages=True, sort_by_element=element)
     elif market == "uk":
-        return raw_daily_info(f"{_urlUK_}/most-active", uk=True, multiple_pages=True, sort_by_element=element)
+        return raw_daily_info(f"{_urlUK_}/most-active", "uk", multiple_pages=True, sort_by_element=element)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
 
-@app.route('/day_gainers/<market>')
-def day_gainers(market):
+@app.route('/day_gainers/<market>/<sort_by>')
+def day_gainers(market, sort_by):
+    if sort_by == "percent_change":
+        element = 4
+    else:
+        element = 7
     if market == "us":
-        return raw_daily_info(f"{_urlUS_}/gainers", multiple_pages=True)
-        #return day_gainers_us()
+        return raw_daily_info(f"{_urlUS_}/gainers", "us", multiple_pages=True, sort_by_element=element)
     elif market == "uk":
-        return day_gainers_uk()
+        return raw_daily_info(f"{_urlUK_}/gainers", "uk", multiple_pages=True, sort_by_element=element)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
