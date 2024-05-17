@@ -214,6 +214,23 @@ swagger = Swagger(app, template={
                 "responses": {"200": {"description": "Returns the top cryptocurrencies"}}
             }
         },
+        "/day_aggressive_small_caps/{sort_by}": {
+            "get": {
+                "tags": ["Day events (screeners)"],
+                "summary": "Returns the aggressive small caps of the day",
+                "parameters": [
+                    {
+                        "name": "sort_by",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "Method to sort the stocks by",
+                        "enum": ["percent_change", "market_cap"]
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the aggressive small caps"}}
+            }
+        },
         "/portfolio_anchors/{sort_by}": {
             "get": {
                 "tags": ["Day events (screeners)"],
@@ -356,7 +373,6 @@ def profile(ticker):
 
 
 # below flask routes rely on the day_stock_info.py functions
-# todo check if have all screeners https://finance.yahoo.com/screener
 
 @app.route('/most_active/<market>/<sort_by>')
 def most_active(market, sort_by):
@@ -438,6 +454,16 @@ def day_us_bonds():
 @app.route('/day_crypto/<amount>')
 def day_crypto(amount):
     return raw_daily_info("us", "/crypto", multiple_pages=True, page_limit=int(amount), skip=1)
+
+
+@app.route('/day_aggressive_small_caps/<sort_by>')
+def day_aggressive_small_caps(sort_by):
+    if sort_by == "percent_change":
+        element = 4
+    else:
+        element = 7
+    return raw_daily_info("us", "screener/predefined/aggressive_small_caps",
+                          multiple_pages=True, sort_by_element=element)
 
 
 @app.route('/portfolio_anchors/<sort_by>')

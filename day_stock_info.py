@@ -26,16 +26,13 @@ def _convert_to_numeric_(s):
         return s
 
     if "M" in s:
-        s = s.strip("M")
-        return _force_float_(s) * 1_000_000
+        return _force_float_(s.strip("M")) * 1_000_000
 
     if "B" in s:
-        s = s.strip("B")
-        return _force_float_(s) * 1_000_000_000
+        return _force_float_(s.strip("B")) * 1_000_000_000
 
     if "T" in s:
-        s = s.strip("T")
-        return _force_float_(s) * 1_000_000_000_000
+        return _force_float_(s.strip("T")) * 1_000_000_000_000
 
     return _force_float_(s)
 
@@ -51,7 +48,6 @@ def table_to_dict(table, skip: int = 0):
     return _data_
 
 
-# todo auto detect uk flag
 def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0):
     if market == "uk":
         site = f"{urlUK}/{site}"
