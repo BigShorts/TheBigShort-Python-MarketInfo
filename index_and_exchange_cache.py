@@ -76,6 +76,7 @@ def get_lse():  # LSE stocks
         _data = pandas.read_excel(f"TickerData/lse.xlsx", None)
         all_eq = _data['1.0 All Equity'].values.tolist()[8:]
         all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
+        input()
         __lse_writer__(all_eq, "lse_eq", 31)
         __lse_writer__(all_no_eq, "lse_non_eq", 31)
         os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")

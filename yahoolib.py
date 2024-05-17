@@ -136,7 +136,7 @@ def load_exchange(exchange, return_type="tickers"):
 #    load_exchange(exchange)
 load_exchange("NASDAQ")
 load_exchange("NASDAQ_OTHER")
-load_exchange("LSE")
+#load_exchange("LSE")
 
 
 def load_indexes(exchange):

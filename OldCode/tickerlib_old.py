@@ -468,6 +468,3 @@ class _Ticker:
     # todo table_to_dict this function
     def shares_full(self, start=None, end=None):  # returns table
         return self._ticker_obj_.get_shares_full(start=start, end=end)
-
-
-_nasdaq_trader_("nasdaqlisted")

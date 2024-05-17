@@ -15,10 +15,9 @@ from readability import Document
 # todo for lewis (unfinished list of all feeds on uk.finance.yahoo.com)
 # scrape https://uk.finance.yahoo.com/
 # scrape https://uk.finance.yahoo.com/topic/news/
-# scrape https://uk.finance.yahoo.com/calendar
+
 # scrape https://uk.finance.yahoo.com/world-indices/
-# scrape https://uk.finance.yahoo.com/currencies/
-# scrape https://uk.finance.yahoo.com/crypto/
+
 # scrape https://uk.finance.yahoo.com/topic/bank-of-england/
 # scrape https://uk.finance.yahoo.com/topic/saving-spending/
 # scrape https://uk.finance.yahoo.com/topic/small-business/
