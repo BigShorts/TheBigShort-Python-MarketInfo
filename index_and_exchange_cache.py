@@ -43,27 +43,8 @@ def get_nasdaq():  # Nasdaq stocks
     return _nasdaq_trader_("nasdaqlisted")
 
 
-def get_us_other_():  # Nasdaq other, funds, etfs, etc.
+def get_us_other():  # Nasdaq other, funds, etfs, etc.
     return _nasdaq_trader_("otherlisted")
-
-
-def __lse_writer__(lse_data, lse_type, refresh_days):
-    # todo database writing of the two lse's
-
-
-    with open(f"TickerData/{lse_type}.txt", "w", encoding="utf-8") as f:
-        f.write(f"# reload+after+{datetime.datetime.now() + datetime.timedelta(days=refresh_days)}\n")
-        for ticker in lse_data:
-            line = ""
-            for i in range(len(ticker)):
-                if i == 0:
-                    if ticker[i].endswith("."):
-                        line += f"{ticker[i]}L§"
-                    else:
-                        line += f"{ticker[i]}.L§"
-                else:
-                    line += f"{ticker[i]}§"
-            f.write(f"{line[:-1]}\n")
 
 
 def get_lse():  # LSE stocks
@@ -76,8 +57,18 @@ def get_lse():  # LSE stocks
         print(f"Downloading lse tickers...")
         _data = pandas.read_excel(f"TickerData/lse.xlsx", None)
         all_eq = _data['1.0 All Equity'].values.tolist()[8:]
+        all_eq_tickers = [x[0] for x in all_eq]
+        all_eq_names = [x[1] for x in all_eq]
+        all_eq_data = [x[2:] for x in all_eq]
+
+        for i in range(len(all_eq)):
+            print(f"{all_eq_tickers[i]} - {all_eq_names[i]} - {all_eq_data[i]}")
+
+
+        input()
         all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
         input()
+        # todo return all_eq, all_no_eq to be used in the main program to write to the database within load_exchange
         __lse_writer__(all_eq, "lse_eq", 31)
         __lse_writer__(all_no_eq, "lse_non_eq", 31)
         os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
@@ -167,7 +158,7 @@ def get_exchange(exchange_name):  # Returns the tickers, names, and other info o
     if exchange_name == "NASDAQ":
         return get_nasdaq()
     elif exchange_name == "NASDAQ_OTHER":
-        return get_us_other_()
+        return get_us_other()
     elif exchange_name == "NYSE":
         return ""
     elif exchange_name == "LSE":

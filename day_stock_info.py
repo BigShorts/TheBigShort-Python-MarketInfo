@@ -1,11 +1,8 @@
-import json
 import requests_html
 import pandas
-import requests
-import datetime
 
 # This file contains functions that scrape data from Yahoo Finance
-# This file should be called when the program starts
+# This file powers the day events (screeners) API calls
 
 urlUS = "https://finance.yahoo.com"
 urlUK = "https://uk.finance.yahoo.com"
@@ -48,15 +45,20 @@ def table_to_dict(table, skip: int = 0):
     return _data_
 
 
-def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0):
+def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0, modify=False):
     if market == "uk":
         site = f"{urlUK}/{site}"
     elif market == "us":
         site = f"{urlUS}/{site}"
+    elif market == "de":
+        site = f"{urlDE}/{site}"
     print(f"{site}?count=100")
     tables_list = []
     session = requests_html.HTMLSession()
-    resp = session.get(f"{site}?count=100")
+    if modify:
+        resp = session.get(f"{site}&count=100")
+    else:
+        resp = session.get(f"{site}?count=100")
 
     # splits the html page where it says, for example, "1-100 of 256 results" and gets the number of pages from this
     if multiple_pages:
@@ -68,19 +70,22 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
 
     for i in range(pages):
         if i != 0:
-            resp = session.get(f"{site}?count=100&offset={i*100}")
+            if modify:
+                resp = session.get(f"{site}&count=100&offset={i*100}")
+            else:
+                resp = session.get(f"{site}?count=100&offset={i*100}")
         tables = pandas.read_html(resp.html.raw_html)
         df = tables[0].copy()
         df.columns = tables[0].columns
 
         # todo add german de market
-        if market == "uk":
-            del df["52-week range"]
-            df["% change"] = df["% change"].map(lambda x: float(x.strip("%").replace(",", "")))
-        if market == "us":
-            del df["52 Week Range"]
-            df["% Change"] = df["% Change"].map(lambda x: float(x.strip("%").replace(",", "")))
         try:
+            if market == "uk":
+                del df["52-week range"]
+                df["% change"] = df["% change"].map(lambda x: float(x.strip("%").replace(",", "")))
+            if market == "us":
+                del df["52 Week Range"]
+                df["% Change"] = df["% Change"].map(lambda x: float(x.strip("%").replace(",", "")))
             del df["Day Chart"]
         except KeyError:
             pass
@@ -121,69 +126,3 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
 
     # use list comprehension to make list of dictionaries
     return [str(value)[2:-3] for key, value in result_table.items()]
-
-
-# Earnings functions
-def _parse_earnings_json(url):
-    resp = requests.get(url, headers=default_headers)
-    content = resp.content.decode(encoding='utf-8', errors='strict')
-    page_data = [row for row in content.split('\n') if row.startswith('root.App.main = ')][0][:-1]
-    page_data = page_data.split('root.App.main = ', 1)[1]
-
-    return json.loads(page_data)
-
-
-# todo finish rewriting, create caching system
-# Returns a dictionary of stock tickers with earnings expected EPS values for each stock.
-def earnings_for_date_us(date=datetime.datetime.today()):
-    date = pandas.Timestamp(date).strftime("%Y-%m-%d")
-    offset = 0
-    tables = []
-    while True:
-        try:
-            url = f"{urlUS}/calendar/earnings?day={date}&offset={offset}&size=100"
-            tables += table_to_dict(pandas.read_html(requests.get(url, headers=default_headers).text)[0])
-            offset += 100
-        except ValueError:
-            break
-    # todo combine tables and number correctly
-    print(tables)
-    input()
-    return tables
-
-
-# Returns a dictionary of stock tickers with earnings expected EPS values for each stock.
-def earnings_for_date_uk(date=datetime.datetime.today(), offset=0, count=100):
-    date = pandas.Timestamp(date).strftime("%Y-%m-%d")
-    url = f"https://uk.finance.yahoo.com/calendar/earnings?day={date}&offset={offset}&size={count}"
-    try:
-        return table_to_dict(pandas.read_html(requests.get(url, headers=default_headers).text)[0])
-    except ValueError:
-        return {}
-
-
-def _earnings_in_date_(start_date, end_date, market):
-    earnings_data = {}
-    days_diff = (pandas.Timestamp(end_date)-pandas.Timestamp(start_date)).days
-    dates = [pandas.Timestamp(start_date)+datetime.timedelta(diff) for diff in range(days_diff+1)]
-
-    for date in dates:
-        if market == "uk":
-            earnings_data.update({str(date)[:-9]: earnings_for_date_uk(date)})
-        elif market == "us":
-            earnings_data.update({str(date)[:-9]: earnings_for_date_us(date)})
-
-    return earnings_data
-
-
-# Returns the stock tickers with expected EPS data for all dates in the input range
-def earnings_in_date_range_us(start_date, end_date):
-    return _earnings_in_date_(start_date, end_date, "us")
-
-
-# Returns the stock tickers with expected EPS data for all dates in the input range
-def earnings_in_date_range_uk(start_date, end_date):
-    return _earnings_in_date_(start_date, end_date, "uk")
-
-
-# todo https://uk.finance.yahoo.com/industries/autos_transportation/ and other topics

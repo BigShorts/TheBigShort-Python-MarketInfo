@@ -3,14 +3,12 @@ from yahoolib import *
 from day_stock_info import *
 from flasgger import Swagger
 
-# file for the Flask server code to run the "yahoolib.py" functions
-
 app = Flask(__name__)
 swagger = Swagger(app, template={
     "info": {
         "title": "Python tickerlib.py python API",
         "description": "Examples of how to use the projects python stock API",
-        "version": "0.0.1"
+        "version": "0.1.0"
     },
     # put the below into paths for "day changes" and "stock info"
 
@@ -183,10 +181,19 @@ swagger = Swagger(app, template={
                 "responses": {"200": {"description": "Returns the latest world indices data"}}
             }
         },
-        "/day_forex_rates": {
+        "/day_forex_rates/{from_market}": {
             "get": {
                 "tags": ["Day events (screeners)"],
-                "summary": "Returns the latest forex rates of the day from GBP",
+                "summary": "Returns the latest forex rates of the day from a given markets currency",
+                "parameters": [
+                    {
+                        "name": "from_market",
+                        "in": "path",
+                        "type": "string", "required": True,
+                        "description": "The market to get forex rates from",
+                        "enum": ["us", "uk", "de"]
+                    }
+                ],
                 "responses": {"200": {"description": "Returns the latest forex rates"}}
             }
         },
@@ -305,40 +312,7 @@ swagger = Swagger(app, template={
                 ],
                 "responses": {"200": {"description": "Returns the earnings for the date"}}
             }
-        },
-        "/earnings_in_date_range_us/{market}/{start_date}/{end_date}": {
-            "get": {
-                "tags": ["Market info"],
-                "deprecated": True,
-                "summary": "Returns the earnings for a date range from a specific market",
-                "parameters": [
-                    {
-                        "name": "market",
-                        "in": "path",
-                        "type": "string", "required": True,
-                        "description": "The market to get earnings from",
-                        "enum": ["us", "uk"]
-                    },
-                    {
-                        "name": "start_date",
-                        "in": "path",
-                        "type": "string",
-                        "required": True,
-                        "description": "The start date of the earnings range",
-                        "default": "2024-05-17"
-                    },
-                    {
-                        "name": "end_date",
-                        "in": "path",
-                        "type": "string",
-                        "required": True,
-                        "description": "The end date of the earnings range",
-                        "default": "2024-05-17"
-                    }
-                ],
-                "responses": {"200": {"description": "Returns the earnings for the date range"}}
-            }
-        },
+        }
     }
 })
 
@@ -380,10 +354,8 @@ def most_active(market, sort_by):
         element = 4
     else:
         element = 7
-    if market == "us":
-        return raw_daily_info("us", "/most-active", multiple_pages=True, sort_by_element=element)
-    elif market == "uk":
-        return raw_daily_info("uk", f"/most-active", multiple_pages=True, sort_by_element=element)
+    if market in ["us", "uk"]:
+        return raw_daily_info(market, f"/most-active", multiple_pages=True, sort_by_element=element)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
@@ -394,20 +366,16 @@ def day_gainers(market, sort_by):
         element = 4
     else:
         element = 7
-    if market == "us":
-        return raw_daily_info("us", "/gainers", multiple_pages=True, sort_by_element=element)
-    elif market == "uk":
-        return raw_daily_info("uk", "/gainers", multiple_pages=True, sort_by_element=element)
+    if market in ["us", "uk"]:
+        return raw_daily_info(market, "/gainers", multiple_pages=True, sort_by_element=element)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
 
 @app.route('/day_losers/<market>')
 def day_losers(market):
-    if market == "us":
-        return raw_daily_info("us", "/losers", multiple_pages=True)
-    elif market == "uk":
-        return raw_daily_info("uk", "/losers", multiple_pages=True)
+    if market in ["us", "uk"]:
+        return raw_daily_info(market, "/losers", multiple_pages=True)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
@@ -441,9 +409,12 @@ def day_world_indices():
     return raw_daily_info("us", "/world-indices", skip=2)
 
 
-@app.route('/day_forex_rates')
-def day_forex_rates():
-    return raw_daily_info("uk", "/currencies", skip=1)
+@app.route('/day_forex_rates/<from_market>')
+def day_forex_rates(from_market):
+    if from_market in ["us", "uk", "de"]:
+        return raw_daily_info(from_market, "/currencies", skip=1)
+    else:
+        return "Market not found, available markets are 'us', 'uk' and 'de'"
 
 
 @app.route('/day_us_bonds')
@@ -498,17 +469,9 @@ def undervalued_large_caps(sort_by):
 
 @app.route('/earnings_for_date/<market>/<date>')
 def earnings_for_date(market, date):
-    if market == "us":
-        return earnings_for_date_us(date)
-    elif market == "uk":
-        return earnings_for_date_uk(date)
+    if market in ["us", "uk"]:
+        date = pandas.Timestamp(date).strftime("%Y-%m-%d")
+        url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
+        return raw_daily_info(market, url, multiple_pages=True, modify=True)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
-
-
-@app.route('/earnings_in_date_range_us/<market>/<start_date>/<end_date>')
-def earnings_in_date_range_us(market, start_date, end_date):
-    if market == "us":
-        return earnings_in_date_range_us(start_date, end_date)
-    elif market == "uk":
-        return earnings_in_date_range_uk(start_date, end_date)

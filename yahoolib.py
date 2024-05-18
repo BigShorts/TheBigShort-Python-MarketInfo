@@ -40,7 +40,7 @@ def create_exchange_table(exchange_name):
 
 
 # list of supported exchanges
-supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]#, "LSE_NON_EQ"]
+supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]#, "LSE_OTHER"]
 
 # loop to create the exchange tables
 [create_exchange_table(exchange) for exchange in supported_exchange_list]
@@ -136,6 +136,7 @@ def load_exchange(exchange, return_type="tickers"):
 #    load_exchange(exchange)
 load_exchange("NASDAQ")
 load_exchange("NASDAQ_OTHER")
+#load_exchange("NYSE")
 #load_exchange("LSE")
 
 
