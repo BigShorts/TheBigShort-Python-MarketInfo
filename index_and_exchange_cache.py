@@ -2,9 +2,12 @@ import pandas
 import ftplib
 import io
 import os
-import datetime
+import warnings
 
 ### exchange cache functions ###
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=UserWarning)
 
 
 def _nasdaq_trader_(search_param):  # Downloads list of nasdaq tickers
@@ -47,32 +50,38 @@ def get_us_other():  # Nasdaq other, funds, etfs, etc.
     return _nasdaq_trader_("otherlisted")
 
 
-def get_lse():  # LSE stocks
+def get_lse(lse_type, rename=False):  # LSE stocks
     if not os.path.exists(f"TickerData/lse.xlsx"):
         print("LSE tickers not found, please download the file from "
               "https://www.londonstockexchange.com/reports?tab=instruments, then save it as lse.xlsx in the "
               "TickerData folder")
         exit()
     else:
-        print(f"Downloading lse tickers...")
         _data = pandas.read_excel(f"TickerData/lse.xlsx", None)
-        all_eq = _data['1.0 All Equity'].values.tolist()[8:]
-        all_eq_tickers = [x[0] for x in all_eq]
-        all_eq_names = [x[1] for x in all_eq]
-        all_eq_data = [x[2:] for x in all_eq]
+        if lse_type == "eq":
+            data = _data['1.0 All Equity'].values.tolist()[8:]
+        else:
+            data = _data['2.0 All Non-Equity'].values.tolist()[8:]
 
-        for i in range(len(all_eq)):
-            print(f"{all_eq_tickers[i]} - {all_eq_names[i]} - {all_eq_data[i]}")
+        tickers = []
+        for i in range(len(data)):
+            if data[i][0].endswith("."):
+                tickers.append(f"{data[i][0]}L")
+            else:
+                tickers.append(f"{data[i][0]}.L")
 
+        other_info = []
+        current_line = ""
+        for i in range(len(data)):
+            for j in range(2, len(data[i])):
+                current_line += f"{data[i][j]}§"
+            other_info.append(current_line[:-1])
+            current_line = ""
 
-        input()
-        all_no_eq = _data['2.0 All Non-Equity'].values.tolist()[8:]
-        input()
-        # todo return all_eq, all_no_eq to be used in the main program to write to the database within load_exchange
-        __lse_writer__(all_eq, "lse_eq", 31)
-        __lse_writer__(all_no_eq, "lse_non_eq", 31)
-        os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
-        return all_eq, all_no_eq
+        if rename:
+            os.rename("TickerData/lse.xlsx", "TickerData/lse_old.xlsx")
+
+        return tickers, [x[1] for x in data], other_info
 
 
 ### index cache functions ###
@@ -85,7 +94,7 @@ def get_sp500():  # Downloads list of tickers currently listed in the S&P 500
         sp_tickers.append(sp500.values[i][0])
         sp_names.append(sp500.values[i][1])
         sp_data.append(f"{sp500.values[i][2]}§{sp500.values[i][3]}§{sp500.values[i][4]}§{sp500.values[i][6]}")
-    return (sp_tickers), (sp_names), (sp_data)
+    return sp_tickers, sp_names, sp_data
 
 
 def get_dow():  # Dow_Jones_Industrial_Average
@@ -97,7 +106,7 @@ def get_dow():  # Dow_Jones_Industrial_Average
         dow_names.append(table.values[i][0])
         dow_data.append(f"{table.values[i][6]}§{table.values[i][1]}§{table.values[i][3]}")
 
-    return (dow_tickers), (dow_names), (dow_data)
+    return dow_tickers, dow_names, dow_data
 
 
 def get_nifty50():  # NIFTY 50, India
@@ -108,10 +117,9 @@ def get_nifty50():  # NIFTY 50, India
         n50_names.append(table.values[i][0])
         n50_data.append(table.values[i][2])
 
-    return (n50_tickers), (n50_names), (n50_data)
+    return n50_tickers, n50_names, n50_data
 
 
-# todo below can become one function change links
 def get_ftse100():  # UK 100
     table = pandas.read_html("https://en.wikipedia.org/wiki/FTSE_100_Index", attrs={"id": "constituents"})[0]
     ftse100_tickers, ftse100_names, ftse100_data = [], [], []
@@ -122,7 +130,7 @@ def get_ftse100():  # UK 100
             ftse100_tickers.append(table.values[i][1]+".L")
         ftse100_names.append(table.values[i][0])
         ftse100_data.append(table.values[i][2])
-    return (ftse100_tickers), (ftse100_names), (ftse100_data)
+    return ftse100_tickers, ftse100_names, ftse100_data
 
 
 def get_ftse250():  # UK 250
@@ -135,7 +143,10 @@ def get_ftse250():  # UK 250
             ftse250_tickers.append(table.values[i][1]+".L")
         ftse250_names.append(table.values[i][0])
         ftse250_data.append(table.values[i][2])
-    return (ftse250_tickers), (ftse250_names), (ftse250_data)
+    return ftse250_tickers, ftse250_names, ftse250_data
+
+
+### wrapper functions to run ###
 
 
 def get_index(index_name):  # Returns the tickers, names, and other info of the index
@@ -153,8 +164,8 @@ def get_index(index_name):  # Returns the tickers, names, and other info of the 
         return None, None, None
 
 
-# todo continue work
 def get_exchange(exchange_name):  # Returns the tickers, names, and other info of the exchange
+    print(f"Reloading {exchange_name} tickers")
     if exchange_name == "NASDAQ":
         return get_nasdaq()
     elif exchange_name == "NASDAQ_OTHER":
@@ -162,6 +173,8 @@ def get_exchange(exchange_name):  # Returns the tickers, names, and other info o
     elif exchange_name == "NYSE":
         return ""
     elif exchange_name == "LSE":
-        return get_lse()
+        return get_lse("eq")
+    elif exchange_name == "LSE_OTHER":
+        return get_lse("non_eq", rename=True)
     else:
         return None, None, None
