@@ -44,7 +44,7 @@ print(nvda["trailingPE"])
 # forward PE ratio (Earnings per share estimate for next year)
 print(nvda["forwardPE"])
 
-# beta (stock volatility relative to the S&P 500 which is 1.0) (less is more volatile)
+# beta (stock volatility relative to the S&P 500 which is 1.0) (more is more volatile)
 print(nvda["beta"])
 
 # market cap

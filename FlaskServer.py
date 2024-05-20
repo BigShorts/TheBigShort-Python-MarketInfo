@@ -467,11 +467,34 @@ def undervalued_large_caps(sort_by):
                           multiple_pages=True, sort_by_element=element)
 
 
-@app.route('/earnings_for_date/<market>/<date>')
-def earnings_for_date(market, date):
+# todo filtering
+@app.route('/earnings_for_date/<market>/<date>/<sort_by>')
+def earnings_for_date(market, date, sort_by):
     if market in ["us", "uk"]:
         date = pandas.Timestamp(date).strftime("%Y-%m-%d")
         url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
-        return raw_daily_info(market, url, multiple_pages=True, modify=True)
+        calender = raw_daily_info(market, url, multiple_pages=True, modify=True)
+        if sort_by == "None":
+            return calender
+        if sort_by.startswith("market_cap:"):
+            market_cap_filter = sort_by.split(":")[1]
+            sign, value = market_cap_filter[0], market_cap_filter[1:]
+            print(sign, value)
+            return_list = []
+            print(calender)
+            for stock in calender:
+                print(stock[0])
+                market_value = index_db.execute(f"SELECT market_cap FROM nasdaq WHERE ticker = '{stock[0]}'").fetchone()[0]
+                print(market_value)
+                if market_value:
+                    if int(market_value) > int(value):
+                        return_list.append(stock)
+                        print(stock)
+                    else:
+                        print(stock, "too small", market_value)
+                else:
+                    print(stock, "too small", market_value)
+                input()
     else:
         return "Market not found, available markets are 'us' and 'uk'"
+
