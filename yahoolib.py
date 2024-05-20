@@ -1,7 +1,10 @@
 from index_and_exchange_cache import *
-import sqlite3
 import datetime
 import os
+import requests
+import random
+import yfinance
+import sqlite3
 
 # below is loader code for the index and exchange cache
 
@@ -33,9 +36,16 @@ supported_index_list = [supported_index_dict[index][0]+"_"+index for index in su
 # valuation is under or overweight as a float.
 def create_exchange_table(exchange_name):
     _index_db.execute(f"CREATE TABLE IF NOT EXISTS {exchange_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
-                      f"other_info TEXT, refresh_time TEXT, market_cap FLOAT, address TEXT, profile_data TEXT, "
-                      f"price_target FLOAT, "
-                      f"growth_estimate FLOAT, action_suggest FLOAT, valuation FLOAT, UNIQUE(ticker))")
+                      "other_info TEXT, refresh_time TEXT, address TEXT, trading_currency TEXT, industry TEXT, "
+                      "sector TEXT, quote_type TEXT, business_summary TEXT, employees INT, company_officers TEXT, "
+                      "dividend_yield FLOAT, dividend_date TIMESTAMP, trailing_PE FLOAT, forward_PE FLOAT, beta FLOAT, "
+                      "market_cap FLOAT, enterprise_value FLOAT, total_debt FLOAT, average_volume FLOAT, "
+                      "average_volume_10days FLOAT, profit_margin FLOAT, shares_outstanding FLOAT, shares_short FLOAT, "
+                      "held_percent_insiders FLOAT, held_percent_institutions FLOAT, earnings_quarterly_growth FLOAT, "
+                      "target_median_price FLOAT, target_mean_price FLOAT, recommendation TEXT, "
+                      "return_on_assets FLOAT, return_on_equity FLOAT, operating_cash_flow FLOAT, "
+                      "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, profile_data TEXT, "
+                      "recommendation_analysed INT, valuation FLOAT, UNIQUE(ticker))")
     _index_db.execute(f"CREATE TABLE IF NOT EXISTS exc_refresh_times (exchange_name TEXT PRIMARY KEY, refresh_time TEXT)")
 
 
@@ -135,120 +145,134 @@ for exchange in supported_exchange_list:
     load_exchange(exchange, refresh_days=31)
 
 
-# check for profile refreshes
-# todo
-import yfinance
-t_object = yfinance.Ticker("NVDA")
-nvda = t_object.info
+def get_profile(_exchange, _ticker):
+    try:
+        t_object = yfinance.Ticker(_ticker)
+        t_info = t_object.info
+    except requests.exceptions.HTTPError:
+        print(f"Ticker {_ticker} profile failed to load: HTTPError")
+        return {}
+    r_day_add, r_hour_add = random.randint(0, 5), random.randint(0, 23)
 
-# address
-print(nvda["address1"])
-#print(nvda["address2"])
-print(nvda["city"])
-print(nvda["state"])
-print(nvda["country"])
-print(nvda["zip"])
-print(nvda["phone"])
-print(nvda["website"])
+    # the below keys are perceived as mostly live data (gained from get_ticker_data()), so excluded from the cache
+    ex_keys = ["previousClose", "open", "dayLow", "dayHigh", "regularMarketPreviousClose", "regularMarketOpen",
+               "regularMarketDayLow", "regularMarketDayHigh", "bid", "ask", "bidSize", "askSize", "symbol",
+               "underlyingSymbol", "currentPrice", "longName", "exchange", "shortName", "sector", "sectorDisp",
+               "industry", "industryDisp", "currency", ]
 
-# traded currency
-print(nvda["financialCurrency"])
+    def updator(keys, value_type=str):
+        data_field = ""
 
-# industry
-print(nvda["industryKey"])
-# sector
-print(nvda["sectorKey"])
+        if len(keys) > 1:
+            for key in keys:
+                if key in t_info.keys():
+                    data_field += f"{key}: {t_info[key]}§"
+                    t_info.pop(key)
+        elif keys[0] in t_info.keys():
+            data_field = t_info[keys[0]]
+            t_info.pop(keys[0])
+        if data_field == "":
+            if value_type == int:
+                return 0
+            else:
+                return None
+        else:
+            if len(keys) > 1:
+                return data_field[:-1]
+            else:
+                return data_field
 
-# business_summary
-print(nvda["longBusinessSummary"])
+    address = updator(["address1", "address2", "city", "state", "zip", "country", "phone", "website"])
+    trading_currency = updator(["financialCurrency"])
+    industry = updator(["industryKey"])
+    sector = updator(["sectorKey"])
+    quote_type = updator(["quoteType"])
+    business_summary = updator(["longBusinessSummary"])
+    employees = updator(["fullTimeEmployees"])
+    company_officers = str(updator(["companyOfficers"]))
+    dividend_yield = updator(["dividendYield"])
+    dividend_date = updator(["exDividendDate"])
+    trailing_PE = updator(["trailingPE"])
+    forward_PE = updator(["forwardPE"])
+    beta = updator(["beta"])
+    market_cap = updator(["marketCap"])
+    enterprise_value = updator(["enterpriseValue"])
+    total_debt = updator(["totalDebt"])
+    average_volume = updator(["averageVolume"])
+    average_volume_10days = updator(["averageVolume10days"])
+    profit_margin = updator(["profitMargins"])
+    shares_outstanding = updator(["sharesOutstanding"])
+    shares_short = updator(["sharesShort"])
+    held_percent_insiders = updator(["heldPercentInsiders"])
+    held_percent_institutions = updator(["heldPercentInstitutions"])
+    earnings_quarterly_growth = updator(["earningsQuarterlyGrowth"])
+    target_median_price = updator(["targetMedianPrice"])
+    target_mean_price = updator(["targetMeanPrice"])
+    recommendation = updator(["recommendationKey", "recommendationMean", "numberOfAnalystOpinions"])
+    return_on_assets = updator(["returnOnAssets"])
+    return_on_equity = updator(["returnOnEquity"])
+    operating_cash_flow = updator(["operatingCashflow"])
+    free_cash_flow = updator(["freeCashflow"])
+    gross_margins = updator(["grossMargins"])
+    operating_margins = updator(["operatingMargins"])
 
-# employees
-print(nvda["fullTimeEmployees"])
+    profile_to_write = ""
+    for _key in t_info.keys():
+        if _key not in ex_keys:
+            t_info[_key] = str(t_info[_key]).replace("\n", "")
+            profile_to_write += f"{_key}§{t_info[_key]}\n"
 
-# company officers
-print(nvda["companyOfficers"])
+    print(profile_to_write)
 
-# dividend yield: as a percent of investment: £100 * yield of 4% = £4
-# refer to https://www.investopedia.com/terms/e/ex-date.asp for info
-print(nvda["dividendYield"])
-print(nvda["exDividendDate"])  # timestamp of the ex-dividend date
-# to get paid a dividend, you must own the stock before the ex-dividend date
-# and 2 days before the record date (which is usually the day after ex-dividend date)
-# --> summary, buy stock 1-2 days before ex-dividend date to get paid the dividend,
-# --> hold to record date 1-2 days after ex-dividend date
+    # todo insert into DB.
+    #company_name, other_info = _index_db.execute(f"SELECT company_name, other_info FROM {_exchange} "
+    #                                             f"WHERE ticker = '{_ticker}'").fetchone()
 
-# trailing PE ratio (Earnings per share history for last year)
-print(nvda["trailingPE"])
+    _index_db.execute(f"UPDATE {_exchange} SET refresh_time = '{datetime.datetime.now() + 
+                        datetime.timedelta(days=r_day_add, hours=r_hour_add)}', address = '{address}', "
+                      f"trading_currency = '{trading_currency}', industry = '{industry}', sector = '{sector}', "
+                      f"quote_type = '{quote_type}', business_summary = '{business_summary}', "
+                      f"employees = {employees} WHERE ticker = '{_ticker}'")
+                      #f" company_officers = '{company_officers}' WHERE ticker = '{_ticker}'")
+                      #f"dividend_yield = {dividend_yield}, dividend_date = '{dividend_date}', "
+                      #f"trailing_PE = {trailing_PE}, forward_PE = {forward_PE}, beta = {beta}, "
+                      #f"market_cap = {market_cap}, enterprise_value = {enterprise_value}, total_debt = {total_debt}, "
+                      #f"average_volume = {average_volume}, average_volume_10days = {average_volume_10days}, "
+                      #f"profit_margin = {profit_margin}, shares_outstanding = {shares_outstanding}, "
+                      #f"shares_short = {shares_short}, held_percent_insiders = {held_percent_insiders}, "
+                      #f"held_percent_institutions = {held_percent_institutions}, "
+                      #f"earnings_quarterly_growth = {earnings_quarterly_growth}, "
+                      #f"target_median_price = {target_median_price}, target_mean_price = {target_mean_price}, "
+                      #f"recommendation = '{recommendation}', return_on_assets = {return_on_assets}, "
+                      #f"return_on_equity = {return_on_equity}, operating_cash_flow = {operating_cash_flow}, "
+                      #f"free_cash_flow = {free_cash_flow}, gross_margins = {gross_margins}, "
+                      #f"operating_margins = {operating_margins}, profile_data = '{profile_to_write}' "
+                      #f"WHERE ticker = '{_ticker}'")
 
-# forward PE ratio (Earnings per share estimate for next year)
-print(nvda["forwardPE"])
+    _index_db.commit()
+                      
 
-# beta (stock volatility relative to the S&P 500 which is 1.0) (less is more volatile)
-print(nvda["beta"])
-
-# market cap
-print(nvda["marketCap"])  # shares value
-print(nvda["enterpriseValue"])  # total value of company (including debt)
-print(nvda["totalDebt"])  # total debt
-
-# average traded volume
-print(nvda["averageVolume"])  # average volume of shares traded per day
-print(nvda["averageVolume10days"])  # average volume of shares traded per day over 10 days
-
-# profit margin
-print(nvda["profitMargins"])  # profit margin as a percentage of revenue
-
-# shares outstanding
-print(nvda["sharesOutstanding"])  # total number of shares issued by the company
-print(nvda["sharesShort"])  # number of shares shorted
-
-# held by insiders / institutions
-print(nvda["heldPercentInsiders"])  # percentage of shares held by insiders
-print(nvda["heldPercentInstitutions"])  # percentage of shares held by institutions
-
-# earnings quarterly growth
-print(nvda["earningsQuarterlyGrowth"])  # earnings growth from the previous quarter
-
-# target median / mean price
-print(nvda["targetMedianPrice"])  # median price target
-print(nvda["targetMeanPrice"])  # mean price target
-
-# yf recommendation
-print(nvda["recommendationKey"])  # buy, hold, sell
-print(nvda["recommendationMean"])  # mean recommendation
-print(nvda["numberOfAnalystOpinions"])  # number of analyst opinions
-# put the above into 1 line: such as "buy: 1.8, 15"
-
-# return on assets / equity
-print(nvda["returnOnAssets"])  # return on assets as a percentage, company efficiency on investments
-
-# cash flow
-print(nvda["operatingCashflow"])  # cash flow from operations
-print(nvda["freeCashflow"])  # cash flow after accounting for capital expenditures
-
-# gross margin
-print(nvda["grossMargins"])  # gross profit margin as a percentage of revenue, company efficiency on production
-
-# operating margins
-print(nvda["operatingMargins"])  # profit per dollar of sales
+    input()
 
 
-# todo read through and remove items out of the list that are used above
-# the below keys are perceived as mostly live data (gained from get_ticker_data()), so excluded from the cache
-ex_keys = ["previousClose", "open", "dayLow", "dayHigh", "regularMarketPreviousClose", "regularMarketOpen",
-           "regularMarketDayLow", "regularMarketDayHigh", "trailingPE", "forwardPE", "volume",
-           "regularMarketVolume", "averageVolume", "averageVolume10days", "averageDailyVolume10Day", "bid",
-           "ask", "bidSize", "askSize", "marketCap", "fiftyTwoWeekLow", "fiftyTwoWeekHigh", "fiftyDayAverage",
-           "twoHundredDayAverage", "trailingAnnualDividendRate", "trailingAnnualDividendYield",
-           "enterpriseValue", "profitMargins", "floatShares", "sharesOutstanding", "sharesShort",
-           "sharesShortPriorMonth", "sharesShortPreviousMonthDate", "sharesPercentSharesOut",
-           "heldPercentInsiders", "heldPercentInstitutions", "shortRatio", "shortPercentOfFloat",
-           "impliedSharesOutstanding", "bookValue", "priceToBook", "lastFiscalYearEnd", "nextFiscalYearEnd",
-           "mostRecentQuarter", "earningsQuarterlyGrowth", "netIncomeToCommon", "trailingEps",
-           "lastSplitFactor", "lastSplitDate", "enterpriseToRevenue", "enterpriseToEbitda", "52WeekChange",
-           "SandP52WeekChange", "symbol", "underlyingSymbol", "currentPrice", "totalCash", "totalCashPerShare",
-           "ebitda", "totalDebt", "currentRatio", "totalRevenue", "debtToEquity", "revenuePerShare",
-           "returnOnAssets", "returnOnEquity", "grossProfits", "freeCashflow", "operatingCashflow",
-           "revenueGrowth", "operatingMargins", "financialCurrency"]
+# check for profile refreshes # todo make max hourly check, threaded updates?
+for exchange in supported_exchange_list:
+    tickers = [str(index)[2:-3] for index in _index_db.execute(f"SELECT ticker FROM {exchange}").fetchall()]
+
+    for ticker in tickers:
+        # get refresh time
+        refresh_time = _index_db.execute(f"SELECT refresh_time FROM {exchange} WHERE ticker = '{ticker}'").fetchone()
+
+        scrape_profile = True
+        if refresh_time != (None,):
+            if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
+                print(f"Skipping {ticker} profile refresh")
+                scrape_profile = False
+
+        if scrape_profile:
+            print(f"Refreshing {ticker} profile")
+            profile_data = get_profile(exchange, ticker)
+
+
 
 
