@@ -19,7 +19,7 @@ index_db = sqlite3.connect("TickerData/indexes.db", check_same_thread=False)
 # code to create the index tables
 def create_index_table(index_name):
     index_db.execute(f"CREATE TABLE IF NOT EXISTS {index_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
-                      f"other_info TEXT)")
+                     f"other_info TEXT)")
     index_db.execute(f"CREATE TABLE IF NOT EXISTS idx_refresh_times (index_name TEXT PRIMARY KEY, refresh_time TEXT)")
 
 
@@ -49,8 +49,8 @@ def create_exchange_table(exchange_name):
     index_db.execute(f"CREATE TABLE IF NOT EXISTS exc_refresh_times (exchange_name TEXT PRIMARY KEY, refresh_time TEXT)")
 
 
-# list of supported exchanges
-supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "LSE", "LSE_OTHER"]
+# list of supported exchanges # LSE_OTHER was removed as 20k irrelevant tickers
+supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "LSE"]#, "LSE_OTHER"]
 
 # loop to create the exchange tables
 [create_exchange_table(exchange) for exchange in supported_exchange_list]
@@ -190,7 +190,7 @@ def get_profile(_exchange, _ticker):
         return _sql_to_ex
 
     sql_to_ex = f"UPDATE {_exchange} SET refresh_time = '{datetime.datetime.now() + 
-                  datetime.timedelta(days=r_day_add, hours=r_hour_add)}', "
+                  datetime.timedelta(days=21+r_day_add, hours=r_hour_add)}', "
 
     sql_to_ex = updator_wrapper(sql_to_ex, "address", ["address1", "address2", "city", "state",
                                                        "zip", "country", "phone", "website"], "str")
@@ -282,6 +282,6 @@ for exchange in supported_exchange_list:
             print(f"Refreshing {exchange} -- {ticker} profile --- {counter}/{total_tickers}")
             profile_data = get_profile(exchange, ticker)
 
+print("Profile refreshes complete")
 
-
-
+# todo watchlist db here
