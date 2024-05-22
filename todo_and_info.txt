@@ -20,6 +20,15 @@ we use c# for DataMining on trading212 because efficient and fast
 we use python for DataMining on yahoo finance because of the python only yfinance library
 
 
-# todo filters: market cap >10 mill, volume >100k
+# todo filters: market cap >10 mill, volume10d >100k
 # every 14 days regenerate the intermediate filtered table of stocks - "watchlist"
 # see if above filters can filter down earnings calls well
+
+
+# todo future, make SP500 and index tables pull data off the exchange tables
+# watchlist has "processed" info such as % shares outstanding shorted
+# dividend watchlist created out of watchlist
+
+# todo track owned stocks every x hours - refreshing profiles.
+
+# todo add NYSE.

@@ -45,7 +45,8 @@ def table_to_dict(table, skip: int = 0):
     return _data_
 
 
-def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0, modify=False):
+def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0, modify=False,
+                   convert_to_dict=True):
     if market == "uk":
         site = f"{urlUK}/{site}"
     elif market == "us":
@@ -121,8 +122,9 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
             else:
                 result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
                                 float(item[1][sort_by_element]), reverse=True)}
-            #for key, value in result_table.items():
-            #    print(str(result_table[key][sort_by_element]) + " ---- " + str(value))
 
     # use list comprehension to make list of dictionaries
-    return [str(value)[2:-3] for key, value in result_table.items()]
+    if convert_to_dict:
+        return [str(value)[2:-3] for key, value in result_table.items()]
+    else:
+        return result_table

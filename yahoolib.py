@@ -1,4 +1,5 @@
-from index_and_exchange_cache import *
+from index_and_exchange_downloader import *
+from settings import *
 import datetime
 import os
 import requests
@@ -20,12 +21,11 @@ index_db = sqlite3.connect("TickerData/indexes.db", check_same_thread=False)
 def create_index_table(index_name):
     index_db.execute(f"CREATE TABLE IF NOT EXISTS {index_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
                      f"other_info TEXT)")
-    index_db.execute(f"CREATE TABLE IF NOT EXISTS idx_refresh_times (index_name TEXT PRIMARY KEY, refresh_time TEXT)")
+    index_db.execute(f"CREATE TABLE IF NOT EXISTS idx_refresh_times (index_name TEXT PRIMARY KEY,"
+                     f" last_refresh_time TEXT)")
 
 
 # list of supported indexes, can be expanded
-supported_index_dict = {"SP500": ["NASDAQ", 1], "DOW": ["NASDAQ", 5], "NIFTY50": ["NSE", 7], "FTSE100": ["LSE", 1],
-                        "FTSE250": ["LSE", 1]}
 supported_index_list = [supported_index_dict[index][0]+"_"+index for index in supported_index_dict.keys()]
 
 # loop to create the index tables
@@ -36,32 +36,30 @@ supported_index_list = [supported_index_dict[index][0]+"_"+index for index in su
 # valuation is under or overweight as a float.
 def create_exchange_table(exchange_name):
     index_db.execute(f"CREATE TABLE IF NOT EXISTS {exchange_name} (ticker TEXT PRIMARY KEY, company_name TEXT, "
-                      "other_info TEXT, refresh_time TEXT, address TEXT, trading_currency TEXT, industry TEXT, "
-                      "sector TEXT, quote_type TEXT, business_summary TEXT, employees INT, company_officers TEXT, "
-                      "dividend_yield FLOAT, dividend_date TIMESTAMP, trailing_PE FLOAT, forward_PE FLOAT, beta FLOAT, "
-                      "market_cap FLOAT, enterprise_value FLOAT, total_debt FLOAT, average_volume FLOAT, "
-                      "average_volume_10days FLOAT, profit_margin FLOAT, shares_outstanding FLOAT, shares_short FLOAT, "
-                      "held_percent_insiders FLOAT, held_percent_institutions FLOAT, earnings_quarterly_growth FLOAT, "
-                      "target_median_price FLOAT, target_mean_price FLOAT, recommendation TEXT, "
-                      "return_on_assets FLOAT, return_on_equity FLOAT, operating_cash_flow FLOAT, "
-                      "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, profile_data TEXT, "
-                      "recommendation_analysed INT, valuation FLOAT, UNIQUE(ticker))")
-    index_db.execute(f"CREATE TABLE IF NOT EXISTS exc_refresh_times (exchange_name TEXT PRIMARY KEY, refresh_time TEXT)")
+                     "other_info TEXT, last_refresh_time TEXT, next_refresh_time TEXT, quote_type TEXT, address TEXT, "
+                     "business_summary TEXT, trading_currency TEXT, industry TEXT, sector TEXT, company_officers TEXT, "
+                     "recommendation TEXT, average_volume FLOAT, average_volume_10days FLOAT, dividend_yield FLOAT, "
+                     "dividend_date TIMESTAMP, target_median_price FLOAT, target_mean_price FLOAT, market_cap FLOAT, "
+                     "enterprise_value FLOAT, profit_margin FLOAT, total_debt FLOAT, operating_cash_flow FLOAT, "
+                     "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, shares_outstanding FLOAT, "
+                     "shares_short FLOAT, held_percent_insiders FLOAT, held_percent_institutions FLOAT, employees INT,"
+                     "earnings_quarterly_growth FLOAT, return_on_assets FLOAT, return_on_equity FLOAT, beta FLOAT, "
+                     "trailing_PE FLOAT, forward_PE FLOAT, profile_data TEXT, recommendation_analysed INT, "
+                     "valuation FLOAT, UNIQUE(ticker))")
+    index_db.execute(f"CREATE TABLE IF NOT EXISTS exc_refresh_times (exchange_name TEXT PRIMARY KEY, "
+                     f"last_refresh_time TEXT)")
 
-
-# list of supported exchanges # LSE_OTHER was removed as 20k irrelevant tickers
-supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "LSE"]#, "LSE_OTHER"]
 
 # loop to create the exchange tables
 [create_exchange_table(exchange) for exchange in supported_exchange_list]
 
 
-def write_index(index_name, refresh_days, tickers, names, other_info):
-    for i in range(len(tickers)):
+def write_index(index_name, _tickers, _names, _other_info):
+    for i in range(len(_tickers)):
         index_db.execute(f"INSERT OR REPLACE INTO {index_name} (ticker, company_name, other_info) "
-                          f"VALUES (?, ?, ?)", (tickers[i], names[i], other_info[i]))
-    index_db.execute(f"INSERT OR REPLACE INTO idx_refresh_times (index_name, refresh_time) VALUES (?, ?)",
-                      (index_name, datetime.datetime.now() + datetime.timedelta(days=refresh_days)))
+                         f"VALUES (?, ?, ?)", (_tickers[i], _names[i], _other_info[i]))
+    index_db.execute(f"INSERT OR REPLACE INTO idx_refresh_times (index_name, last_refresh_time) VALUES (?, ?)",
+                     (index_name, datetime.datetime.now()))
     index_db.commit()
 
 
@@ -77,27 +75,27 @@ def load_index(index_name, return_type="tickers"):
                 break
 
         # check if the index needs to be refreshed by checking the refresh time
-        refresh_time = index_db.execute(f"SELECT refresh_time FROM idx_refresh_times WHERE "
+        _refresh_time = index_db.execute(f"SELECT last_refresh_time FROM idx_refresh_times WHERE "
                                          f"index_name = '{index_full_name}'").fetchone()
-        tickers = None
-        if refresh_time:
-            if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
-                tickers = [str(index)[2:-3] for index in (index_db.execute(f"SELECT ticker FROM {index_full_name}").fetchall())]
-                names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()]
-                other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()]
-        if not tickers:
-            refresh_days = supported_index_dict[index_name][1]
-            tickers, names, other_info = get_index(index_name)
-            write_index(index_full_name, refresh_days, tickers, names, other_info)
+        _tickers, _names, _other_info = [None, None, None]
+        if _refresh_time:
+            if (datetime.datetime.now() < datetime.datetime.fromisoformat(_refresh_time[0]) +
+                    datetime.timedelta(days=supported_index_dict[index_name][1])):
+                _tickers = [str(index)[2:-3] for index in (index_db.execute(f"SELECT ticker FROM {index_full_name}").fetchall())]
+                _names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()]
+                _other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()]
+        if not _tickers:
+            _tickers, _names, _other_info = get_index(index_name)
+            write_index(index_full_name, _tickers, _names, _other_info)
 
         if return_type == "tickers":
-            return tickers
-        elif return_type == "names":
-            return names
+            return _tickers
+        elif return_type == "_names":
+            return _names
         elif return_type == "other_info":
-            return other_info
+            return _other_info
         elif return_type == "all":
-            return exchange+"\n"+tickers+"\n"+names+"\n"+other_info
+            return exchange+"\n"+_tickers+"\n"+_names+"\n"+_other_info
     else:
         return "Index not found"
 
@@ -107,42 +105,43 @@ for index in supported_index_dict.keys():
     load_index(index)
 
 
-def write_exchange(exchange, refresh_days, tickers, company_names, other_info):
-    for i in range(len(tickers)):
+def write_exchange(exchange, _tickers, company_names, other_info):
+    for i in range(len(_tickers)):
         index_db.execute(f"INSERT OR REPLACE INTO {exchange} (ticker, company_name, other_info) VALUES (?, ?, ?)",
-                          (tickers[i], company_names[i], other_info[i]))
-    index_db.execute(f"INSERT OR REPLACE INTO exc_refresh_times (exchange_name, refresh_time) VALUES (?, ?)",
-                      (exchange, datetime.datetime.now() + datetime.timedelta(refresh_days)))
+                         (_tickers[i], company_names[i], other_info[i]))
+    index_db.execute(f"INSERT OR REPLACE INTO exc_refresh_times (exchange_name, last_refresh_time) VALUES (?, ?)",
+                     (exchange, datetime.datetime.now()))
     index_db.commit()
 
 
-def load_exchange(exchange, return_type="tickers", refresh_days=3):
+def load_exchange(exchange, return_type="tickers"):
     if exchange in supported_exchange_list:
         # check if the exchange needs to be refreshed by checking the refresh time
-        refresh_time = index_db.execute(f"SELECT refresh_time FROM exc_refresh_times WHERE "
+        _refresh_time = index_db.execute(f"SELECT last_refresh_time FROM exc_refresh_times WHERE "
                                          f"exchange_name = '{exchange}'").fetchone()
-        tickers = None
-        if refresh_time:
-            if datetime.datetime.now() < datetime.datetime.fromisoformat(refresh_time[0]):
-                tickers = [str(index)[2:-3] for index in index_db.execute(f"SELECT ticker FROM {exchange}").fetchall()]
-                names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()]
-                other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()]
-        if not tickers:
-            tickers, names, other_info = get_exchange(exchange)
-            write_exchange(exchange, refresh_days, tickers, names, other_info)
+        _tickers, _names, _other_info = [None, None, None]
+        if _refresh_time:
+            if (datetime.datetime.now() < datetime.datetime.fromisoformat(_refresh_time[0]) +
+                    datetime.timedelta(days=exchange_refresh_time)):
+                _tickers = [str(index)[2:-3] for index in index_db.execute(f"SELECT ticker FROM {exchange}").fetchall()]
+                _names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()]
+                _other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()]
+        if not _tickers:
+            _tickers, _names, _other_info = get_exchange(exchange)
+            write_exchange(exchange, _tickers, _names, _other_info)
         if return_type == "tickers":
-            return tickers
+            return _tickers
         elif return_type == "names":
-            return names
+            return _names
         elif return_type == "other_info":
-            return str(tickers)+"\n"+str(other_info)
+            return str(_tickers)+"\n"+str(_other_info)
     else:
         return "Exchange not found"
 
 
 # check for exchange refreshes
 for exchange in supported_exchange_list:
-    load_exchange(exchange, refresh_days=31)
+    load_exchange(exchange)
 
 
 def get_profile(_exchange, _ticker):
@@ -189,17 +188,33 @@ def get_profile(_exchange, _ticker):
                 _sql_to_ex += f"{field_name} = {data_field}, "
         return _sql_to_ex
 
-    sql_to_ex = f"UPDATE {_exchange} SET refresh_time = '{datetime.datetime.now() + 
-                  datetime.timedelta(days=21+r_day_add, hours=r_hour_add)}', "
+    sql_to_ex = (f"UPDATE {_exchange} SET last_refresh_time = '{datetime.datetime.now()}', "
+                 f"next_refresh_time = '{(datetime.datetime.now() + 
+                 datetime.timedelta(days=exchange_profiles_refresh_time+r_day_add, hours=r_hour_add))}', ")
 
-    sql_to_ex = updator_wrapper(sql_to_ex, "address", ["address1", "address2", "city", "state",
-                                                       "zip", "country", "phone", "website"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "trading_currency", ["financialCurrency"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "industry", ["industryKey"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "sector", ["sectorKey"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "quote_type", ["quoteType"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "business_summary", ["longBusinessSummary"], "str")
-    sql_to_ex = updator_wrapper(sql_to_ex, "employees", ["fullTimeEmployees"])
+    sql_builder = [["address", ["address1", "address2", "city", "state", "zip", "country", "phone", "website"], "str"],
+                   ["trading_currency", ["financialCurrency"], "str"], ["industry", ["industryKey"], "str"],
+                   ["sector", ["sectorKey"], "str"], ["quote_type", ["quoteType"], "str"],
+                   ["business_summary", ["longBusinessSummary"], "str"], ["employees", ["fullTimeEmployees"]],
+                   ["dividend_yield", ["dividendYield"]], ["dividend_date", ["exDividendDate"]],
+                   ["trailing_PE", ["trailingPE"]], ["forward_PE", ["forwardPE"]],
+                   ["beta", ["beta"]], ["market_cap", ["marketCap"]], ["enterprise_value", ["enterpriseValue"]],
+                   ["total_debt", ["totalDebt"]], ["average_volume", ["averageVolume"]],
+                   ["average_volume_10days", ["averageVolume10days"]], ["profit_margin", ["profitMargins"]],
+                   ["shares_outstanding", ["sharesOutstanding"]], ["shares_short", ["sharesShort"]],
+                   ["held_percent_insiders", ["heldPercentInsiders"]],
+                   ["held_percent_institutions", ["heldPercentInstitutions"]],
+                   ["earnings_quarterly_growth", ["earningsQuarterlyGrowth"]],
+                   ["target_median_price", ["targetMedianPrice"]], ["target_mean_price", ["targetMeanPrice"]],
+                   ["return_on_assets", ["returnOnAssets"]], ["return_on_equity", ["returnOnEquity"]],
+                   ["operating_cash_flow", ["operatingCashflow"]], ["free_cash_flow", ["freeCashflow"]],
+                   ["gross_margins", ["grossMargins"]], ["operating_margins", ["operatingMargins"]]]
+
+    for field in sql_builder:
+        if len(field) == 3:
+            sql_to_ex = updator_wrapper(sql_to_ex, field[0], field[1], field[2])
+        else:
+            sql_to_ex = updator_wrapper(sql_to_ex, field[0], field[1])
 
     company_officers = updator(["companyOfficers"])
     if company_officers:
@@ -212,35 +227,9 @@ def get_profile(_exchange, _ticker):
         company_officers_write = company_officers_write[:-1].replace("'", "").replace('"', "")
         sql_to_ex += f"company_officers = '{company_officers_write}', "
 
-    sql_to_ex = updator_wrapper(sql_to_ex, "dividend_yield", ["dividendYield"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "dividend_date", ["exDividendDate"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "trailing_PE", ["trailingPE"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "forward_PE", ["forwardPE"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "beta", ["beta"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "market_cap", ["marketCap"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "enterprise_value", ["enterpriseValue"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "total_debt", ["totalDebt"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "average_volume", ["averageVolume"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "average_volume_10days", ["averageVolume10days"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "profit_margin", ["profitMargins"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "shares_outstanding", ["sharesOutstanding"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "shares_short", ["sharesShort"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "held_percent_insiders", ["heldPercentInsiders"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "held_percent_institutions", ["heldPercentInstitutions"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "earnings_quarterly_growth", ["earningsQuarterlyGrowth"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "target_median_price", ["targetMedianPrice"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "target_mean_price", ["targetMeanPrice"])
-
     recommendation = updator(["recommendationKey", "recommendationMean", "numberOfAnalystOpinions"])
     if recommendation and recommendation != "recommendationKey: none":
         sql_to_ex += f"recommendation = '{recommendation}', "
-
-    sql_to_ex = updator_wrapper(sql_to_ex, "return_on_assets", ["returnOnAssets"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "return_on_equity", ["returnOnEquity"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "operating_cash_flow", ["operatingCashflow"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "free_cash_flow", ["freeCashflow"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "gross_margins", ["grossMargins"])
-    sql_to_ex = updator_wrapper(sql_to_ex, "operating_margins", ["operatingMargins"])
 
     profile_to_write = ""
     for _key in t_info.keys():
@@ -271,7 +260,7 @@ for exchange in supported_exchange_list:
     for ticker in tickers:
         counter += 1
         # get refresh time
-        refresh_time = index_db.execute(f"SELECT refresh_time FROM {exchange} WHERE ticker = '{ticker}'").fetchone()
+        refresh_time = index_db.execute(f"SELECT next_refresh_time FROM {exchange} WHERE ticker = '{ticker}'").fetchone()
 
         scrape_profile = True
         if refresh_time != (None,):
@@ -285,3 +274,16 @@ for exchange in supported_exchange_list:
 print("Profile refreshes complete")
 
 # todo watchlist db here
+# edit fields for compound fields, as storing same info twice dumb
+index_db.execute(f"CREATE TABLE IF NOT EXISTS watchlist (ticker TEXT PRIMARY KEY, company_name TEXT, "
+                 "other_info TEXT, last_refresh_time TEXT, next_refresh_time TEXT, quote_type TEXT, address TEXT, "
+                 "business_summary TEXT, trading_currency TEXT, industry TEXT, sector TEXT, company_officers TEXT, "
+                 "recommendation TEXT, average_volume FLOAT, average_volume_10days FLOAT, dividend_yield FLOAT, "
+                 "dividend_date TIMESTAMP, target_median_price FLOAT, target_mean_price FLOAT, market_cap FLOAT, "
+                 "enterprise_value FLOAT, profit_margin FLOAT, total_debt FLOAT, operating_cash_flow FLOAT, "
+                 "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, shares_outstanding FLOAT, "
+                 "perecent_shares_short FLOAT, held_percent_insiders FLOAT, held_percent_institutions FLOAT, "
+                 "employees INT,earnings_quarterly_growth FLOAT, return_on_assets FLOAT, return_on_equity FLOAT, "
+                 "beta FLOAT, trailing_PE FLOAT, forward_PE FLOAT, profile_data TEXT, recommendation_analysed INT, "
+                 "valuation FLOAT, UNIQUE(ticker))")
+

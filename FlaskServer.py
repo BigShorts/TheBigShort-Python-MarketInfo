@@ -467,34 +467,30 @@ def undervalued_large_caps(sort_by):
                           multiple_pages=True, sort_by_element=element)
 
 
-# todo filtering
-@app.route('/earnings_for_date/<market>/<date>/<sort_by>')
-def earnings_for_date(market, date, sort_by):
+# todo filtering by watchlist
+@app.route('/earnings_for_date/<market>/<date>/')
+def earnings_for_date(market, date):
     if market in ["us", "uk"]:
         date = pandas.Timestamp(date).strftime("%Y-%m-%d")
         url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
-        calender = raw_daily_info(market, url, multiple_pages=True, modify=True)
-        if sort_by == "None":
-            return calender
-        if sort_by.startswith("market_cap:"):
-            market_cap_filter = sort_by.split(":")[1]
-            sign, value = market_cap_filter[0], market_cap_filter[1:]
-            print(sign, value)
-            return_list = []
-            print(calender)
-            for stock in calender:
-                print(stock[0])
-                market_value = index_db.execute(f"SELECT market_cap FROM nasdaq WHERE ticker = '{stock[0]}'").fetchone()[0]
+        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
+        return_list = []
+        for stock in calender:
+            print(calender[stock][0])
+            try:
+                market_value = index_db.execute(f"SELECT market_cap FROM nasdaq WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
                 print(market_value)
                 if market_value:
-                    if int(market_value) > int(value):
+                    if int(market_value) > int(all_index_watchlist_min_market_cap):
                         return_list.append(stock)
-                        print(stock)
+                        print(calender[stock])
                     else:
-                        print(stock, "too small", market_value)
+                        print(calender[stock], "too small", market_value)
                 else:
-                    print(stock, "too small", market_value)
-                input()
+                    print(calender[stock], "too small", market_value)
+            except TypeError:
+                print(calender[stock], "Ticker not listed in database, likely listed on another exchange")
+            input()
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
