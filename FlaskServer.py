@@ -307,7 +307,7 @@ swagger = Swagger(app, template={
                         "type": "string",
                         "required": True,
                         "description": "The date to get earnings from",
-                        "default": "2024-05-17"
+                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
                     }
                 ],
                 "responses": {"200": {"description": "Returns the earnings for the date"}}
@@ -476,21 +476,35 @@ def earnings_for_date(market, date):
         calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
         return_list = []
         for stock in calender:
-            print(calender[stock][0])
             try:
                 market_value = index_db.execute(f"SELECT market_cap FROM nasdaq WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
-                print(market_value)
-                if market_value:
-                    if int(market_value) > int(all_index_watchlist_min_market_cap):
-                        return_list.append(stock)
-                        print(calender[stock])
-                    else:
-                        print(calender[stock], "too small", market_value)
-                else:
-                    print(calender[stock], "too small", market_value)
+                volume = index_db.execute(f"SELECT average_volume_10days FROM nasdaq WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
             except TypeError:
-                print(calender[stock], "Ticker not listed in database, likely listed on another exchange")
-            input()
+                try:
+                    market_value = index_db.execute(f"SELECT market_cap FROM nyse WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
+                    volume = index_db.execute(f"SELECT average_volume_10days FROM nyse WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
+                except TypeError:
+                    market_value = None
+                    volume = None
+
+            if market_value:
+                if int(market_value) > int(all_index_watchlist_min_market_cap):
+                    try:
+                        if int(volume) > int(all_index_watchlist_min_trade_volume):
+                            calender[stock].append(market_value)
+                            calender[stock].append(volume)
+                            return_list.append(calender[stock])
+                            print(calender[stock])
+                    except TypeError:
+                        pass
+                    #else:
+                    #    print(calender[stock], "volume too small", volume)
+                #else:
+                #    print(calender[stock], "market cap too small", market_value)
+
+        # sort return list by market cap
+        return_list.sort(key=lambda x: x[7], reverse=True)
+        return return_list
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 

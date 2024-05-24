@@ -5,7 +5,8 @@ supported_index_dict = {"SP500": ["NASDAQ", 1], "DOW": ["NASDAQ", 5], "NIFTY50":
 
 
 # list of supported exchanges # LSE_OTHER is commented out as 20k irrelevant tickers
-supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "LSE"]#, "LSE_OTHER"]
+# commenting out an exchange will prevent it from being loaded and refreshed
+supported_exchange_list = ["NASDAQ", "NASDAQ_OTHER", "NYSE", "LSE"]#, "LSE_OTHER"]
 
 # exchange refresh time in days (checks for newly added stocks)
 exchange_refresh_time = 31

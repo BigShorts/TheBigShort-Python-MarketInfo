@@ -3,11 +3,43 @@ import ftplib
 import io
 import os
 import warnings
+import requests
+
+# functions to download ticker lists and index lists
 
 ### exchange cache functions ###
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
+
+
+def get_nyse():  # NYSE stocks
+    fields = ["0–9", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+              "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+    nyse_names = []
+    nyse_tickers = []
+    for field in fields:
+        nyse_page = requests.get(f"https://en.wikipedia.org/wiki/"
+                                 f"Companies_listed_on_the_New_York_Stock_Exchange_({field})").content
+        nyse_page = (str(nyse_page).split("<th>Country of origin\\n<")[1].split("</table>")[0])
+
+        nyse_ticker_page = nyse_page.split("href=\"https://www.nyse.com/quote/XNYS:")[1:]
+
+        for i in range(len(nyse_ticker_page[:-1])):
+            nyse_ticker = nyse_ticker_page[i].split("\">")[0]
+            nyse_name = nyse_ticker_page[i]
+            if "p" not in nyse_ticker:
+                nyse_tickers.append(nyse_ticker)
+                try:
+                    nyse_name = nyse_name.split("\\n<td>")[2].split("\\n")[0]
+                    if "<a href" in nyse_name:
+                        nyse_name = nyse_name.split("\">")[1].split("</a>")[0]
+                except IndexError:
+                    nyse_name = nyse_names[-1]
+                nyse_names.append(nyse_name)
+
+    return nyse_tickers, nyse_names, [None] * len(nyse_tickers)
 
 
 def _nasdaq_trader_(search_param):  # Downloads list of nasdaq/nasdaq_other tickers
@@ -158,7 +190,7 @@ def get_exchange(exchange_name):  # Returns the tickers, names, and other info o
     elif exchange_name == "NASDAQ_OTHER":
         return get_us_other()
     elif exchange_name == "NYSE":
-        return ""
+        return get_nyse()
     elif exchange_name == "LSE":
         return get_lse("eq")
     elif exchange_name == "LSE_OTHER":
