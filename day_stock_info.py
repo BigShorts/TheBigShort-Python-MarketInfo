@@ -75,7 +75,10 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
                 resp = session.get(f"{site}&count=100&offset={i*100}")
             else:
                 resp = session.get(f"{site}?count=100&offset={i*100}")
-        tables = pandas.read_html(resp.html.raw_html)
+        try:
+            tables = pandas.read_html(resp.html.raw_html)
+        except ValueError:
+            break
         df = tables[0].copy()
         df.columns = tables[0].columns
 

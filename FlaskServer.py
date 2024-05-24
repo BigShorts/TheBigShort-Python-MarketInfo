@@ -8,18 +8,86 @@ swagger = Swagger(app, template={
     "info": {
         "title": "Python tickerlib.py python API",
         "description": "Examples of how to use the projects python stock API",
-        "version": "0.1.0"
+        "version": "0.2.0"
     },
     # put the below into paths for "day changes" and "stock info"
 
     "tags": [
-        {"name": "Day events (screeners)", "description": "Changes to stocks over a specific day"},
+        {"name": "Stock info", "description": "Information on a specific stock(s)"},
         {"name": "Market info", "description": "Information on specific markets and/or indexes"},
-        {"name": "Stock info", "description": "Information on a specific stock(s)"}
+        {"name": "Day events (screeners)", "description": "Changes to stocks over a specific day"}
     ],
 
 
     "paths": {
+        "/tns/{company_name}": {
+            "get": {
+                "tags": ["Stock info"],
+                "summary": "Attempts to find and return the ticker symbol for a specific company",#
+                "deprecated": True,
+                "parameters": [
+                    {
+                        "name": "company_name",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The name of the company to get the ticker symbol for",
+                        "default": "Nvidia"
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the ticker symbol"}}
+            }
+        },
+        "/stock_info/{ticker}/": {
+            "get": {
+                "tags": ["Stock info"],
+                "summary": "Returns the stock information for a specific ticker",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The ticker symbol to get the stock information for",
+                        "default": "NVDA"
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the stock information"}}
+            }
+        },
+        "/earnings_for_date/{market}/{date}/{sort_by}": {
+            "get": {
+                "tags": ["Market info"],
+                "summary": "Returns the earnings for a specific date from a specific market",
+                "parameters": [
+                    {
+                        "name": "market",
+                        "in": "path",
+                        "type": "string", "required": True,
+                        "description": "The market to get earnings from",
+                        "enum": ["us", "uk"]
+                    },
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The date to get earnings from",
+                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "Method to sort the stocks by",
+                        "enum": ["market_cap", "trade_volume"]
+                    }
+
+                ],
+                "responses": {"200": {"description": "Returns the earnings for the date"}}
+            }
+        },
         "/index/{index_name}/{return_type}": {
             "get": {
                 "tags": ["Market info"],
@@ -288,30 +356,6 @@ swagger = Swagger(app, template={
                 ],
                 "responses": {"200": {"description": "Returns the undervalued large caps"}}
             }
-        },
-        "/earnings_for_date/{market}/{date}": {
-            "get": {
-                "tags": ["Market info"],
-                "summary": "Returns the earnings for a specific date from a specific market",
-                "parameters": [
-                    {
-                        "name": "market",
-                        "in": "path",
-                        "type": "string", "required": True,
-                        "description": "The market to get earnings from",
-                        "enum": ["us", "uk"]
-                    },
-                    {
-                        "name": "date",
-                        "in": "path",
-                        "type": "string",
-                        "required": True,
-                        "description": "The date to get earnings from",
-                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
-                    }
-                ],
-                "responses": {"200": {"description": "Returns the earnings for the date"}}
-            }
         }
     }
 })
@@ -321,6 +365,64 @@ swagger = Swagger(app, template={
 @app.route('/')
 def blank_page():
     return "This is a blank page, navigate to the API documentation at /apidocs"
+
+
+# todo build function
+# stock info functions below
+@app.route('/tns/<company_name>')
+def tns(company_name):
+    return None
+
+
+@app.route('/stock_info/<ticker>/')
+def stock_info(ticker):
+    for exchange in supported_exchange_list:
+        ticker_info = index_db.execute(f"SELECT * FROM {exchange} WHERE ticker = '{ticker}'").fetchone()
+        if ticker_info:
+            return list(ticker_info)
+    return "Ticker not found"
+
+
+# market info functions below
+@app.route('/earnings_for_date/<market>/<date>/<sort_by>')
+def earnings_for_date(market, date, sort_by):
+    if market in ["us", "uk"]:
+        date = pandas.Timestamp(date).strftime("%Y-%m-%d")
+        url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
+        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
+        return_list = []
+
+        if market == "us":
+            us_indexes = ["nasdaq", "nyse", "nasdaq_other"]
+        else:
+            us_indexes = ["lse"]
+
+        volume, market_cap = [None, None]
+        for stock in calender:
+            for us_index in us_indexes:
+                try:
+                    volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {us_index} "
+                                                          f"WHERE ticker = '{calender[stock][0]}'").fetchone()
+                    if market_cap and volume:
+                        if int(market_cap) > int(all_index_watchlist_min_market_cap):
+                            try:
+                                if int(volume) > int(all_index_watchlist_min_trade_volume):
+                                    calender[stock].append(market_cap)
+                                    calender[stock].append(volume)
+                                    return_list.append(calender[stock])
+                            except TypeError:
+                                pass
+                except TypeError:
+                    volume, market_cap = [None, None]
+
+        # sort return list by market cap or trade volume
+        if sort_by == "market_cap":
+            return_list.sort(key=lambda x: x[7], reverse=True)
+        else:
+            return_list.sort(key=lambda x: x[8], reverse=True)
+        return return_list
+    else:
+        return "Market not found, available markets are 'us' and 'uk'"
 
 
 @app.route('/index/<index_name>/<return_type>')
@@ -465,46 +567,3 @@ def undervalued_large_caps(sort_by):
         element = 7
     return raw_daily_info("us", "screener/predefined/undervalued_large_caps",
                           multiple_pages=True, sort_by_element=element)
-
-
-# todo filtering by watchlist
-@app.route('/earnings_for_date/<market>/<date>/')
-def earnings_for_date(market, date):
-    if market in ["us", "uk"]:
-        date = pandas.Timestamp(date).strftime("%Y-%m-%d")
-        url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
-        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
-        return_list = []
-        for stock in calender:
-            try:
-                market_value = index_db.execute(f"SELECT market_cap FROM nasdaq WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
-                volume = index_db.execute(f"SELECT average_volume_10days FROM nasdaq WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
-            except TypeError:
-                try:
-                    market_value = index_db.execute(f"SELECT market_cap FROM nyse WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
-                    volume = index_db.execute(f"SELECT average_volume_10days FROM nyse WHERE ticker = '{calender[stock][0]}'").fetchone()[0]
-                except TypeError:
-                    market_value = None
-                    volume = None
-
-            if market_value:
-                if int(market_value) > int(all_index_watchlist_min_market_cap):
-                    try:
-                        if int(volume) > int(all_index_watchlist_min_trade_volume):
-                            calender[stock].append(market_value)
-                            calender[stock].append(volume)
-                            return_list.append(calender[stock])
-                            print(calender[stock])
-                    except TypeError:
-                        pass
-                    #else:
-                    #    print(calender[stock], "volume too small", volume)
-                #else:
-                #    print(calender[stock], "market cap too small", market_value)
-
-        # sort return list by market cap
-        return_list.sort(key=lambda x: x[7], reverse=True)
-        return return_list
-    else:
-        return "Market not found, available markets are 'us' and 'uk'"
-
