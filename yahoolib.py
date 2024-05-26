@@ -1,4 +1,6 @@
 from index_and_exchange_downloader import *
+from day_stock_info import _force_float_
+from day_stock_info import *
 from settings import *
 import datetime
 import os
@@ -146,8 +148,7 @@ for exchange in supported_exchange_list:
 
 def get_profile(_exchange, _ticker):
     try:
-        t_object = yfinance.Ticker(_ticker)
-        t_info = t_object.info
+        t_info = yfinance.Ticker(_ticker).info
     except requests.exceptions.HTTPError:
         print(f"Ticker {_ticker} profile failed to load: HTTPError")
         return {}
@@ -275,15 +276,74 @@ print("Profile refreshes complete")
 
 # todo watchlist db here
 # edit fields for compound fields, as storing same info twice dumb
-index_db.execute(f"CREATE TABLE IF NOT EXISTS watchlist (ticker TEXT PRIMARY KEY, company_name TEXT, "
-                 "other_info TEXT, last_refresh_time TEXT, next_refresh_time TEXT, quote_type TEXT, address TEXT, "
-                 "business_summary TEXT, trading_currency TEXT, industry TEXT, sector TEXT, company_officers TEXT, "
-                 "recommendation TEXT, average_volume FLOAT, average_volume_10days FLOAT, dividend_yield FLOAT, "
-                 "dividend_date TIMESTAMP, target_median_price FLOAT, target_mean_price FLOAT, market_cap FLOAT, "
-                 "enterprise_value FLOAT, profit_margin FLOAT, total_debt FLOAT, operating_cash_flow FLOAT, "
-                 "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, shares_outstanding FLOAT, "
-                 "perecent_shares_short FLOAT, held_percent_insiders FLOAT, held_percent_institutions FLOAT, "
-                 "employees INT,earnings_quarterly_growth FLOAT, return_on_assets FLOAT, return_on_equity FLOAT, "
-                 "beta FLOAT, trailing_PE FLOAT, forward_PE FLOAT, profile_data TEXT, recommendation_analysed INT, "
-                 "valuation FLOAT, UNIQUE(ticker))")
+#index_db.execute(f"CREATE TABLE IF NOT EXISTS watchlist (ticker TEXT PRIMARY KEY, company_name TEXT, "
+#                 "other_info TEXT, last_refresh_time TEXT, next_refresh_time TEXT, quote_type TEXT, address TEXT, "
+#                 "business_summary TEXT, trading_currency TEXT, industry TEXT, sector TEXT, company_officers TEXT, "
+#                 "recommendation TEXT, average_volume FLOAT, average_volume_10days FLOAT, dividend_yield FLOAT, "
+#                 "dividend_date TIMESTAMP, target_median_price FLOAT, target_mean_price FLOAT, market_cap FLOAT, "
+#                 "enterprise_value FLOAT, profit_margin FLOAT, total_debt FLOAT, operating_cash_flow FLOAT, "
+#                 "free_cash_flow FLOAT, gross_margins FLOAT, operating_margins FLOAT, shares_outstanding FLOAT, "
+#                 "perecent_shares_short FLOAT, held_percent_insiders FLOAT, held_percent_institutions FLOAT, "
+#                 "employees INT,earnings_quarterly_growth FLOAT, return_on_assets FLOAT, return_on_equity FLOAT, "
+#                 "beta FLOAT, trailing_PE FLOAT, forward_PE FLOAT, profile_data TEXT, recommendation_analysed INT, "
+#                 "valuation FLOAT, UNIQUE(ticker))")
+
+
+# create the calendar tables
+for country in site_dict.keys():
+    index_db.execute(f"CREATE TABLE IF NOT EXISTS {country}_calendar (calender_date TEXT, ticker TEXT, "
+                     f"company_name TEXT, event_name TEXT, market_time TEXT, EPS_estimate TEXT, EPS_reported TEXT, "
+                     f"surprise TEXT, market_cap FLOAT, average_volume TEXT)")
+
+
+def load_earnings(market, date, sort_by):
+    # try to load data from cache.
+    return_list = index_db.execute(f"SELECT ticker, company_name, event_name, market_time, EPS_estimate, "
+                                   f"EPS_reported, surprise, market_cap, average_volume FROM {market}_calendar WHERE "
+                                   f"calender_date = '{date}'").fetchall()
+    if return_list:
+        return_list = [list(stock) for stock in return_list]
+        print(return_list)
+    else:
+        return_list = []
+        date = pandas.Timestamp(date).strftime("%Y-%m-%d")
+        url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
+        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
+
+        if market == "us":
+            index_list = ["nasdaq", "nyse", "nasdaq_other"]
+        else:
+            index_list = ["lse"]
+
+        for stock in calender:
+            for index in index_list:
+                try:
+                    volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {index} "
+                                                          f"WHERE ticker = '{calender[stock][0]}'").fetchone()
+                    if market_cap and volume:
+                        if int(market_cap) > int(all_index_watchlist_min_market_cap):
+                            try:
+                                if int(volume) > int(all_index_watchlist_min_trade_volume):
+                                    calender[stock].append(market_cap)
+                                    calender[stock].append(volume)
+                                    return_list.append(calender[stock])
+                            except TypeError:
+                                pass
+                except TypeError:
+                    pass
+
+        for stock in return_list:
+            index_db.execute(f"INSERT INTO {market}_calendar (calender_date, ticker, company_name, "
+                             f"event_name, market_time, EPS_estimate, EPS_reported, surprise, market_cap, "
+                             f"average_volume) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                             (date, stock[0], stock[1], stock[2], stock[3], stock[4],
+                              stock[5], stock[6], stock[7], stock[8]))
+        index_db.commit()
+
+    # sort return list by market cap or trade volume
+    if sort_by == "market_cap":
+        return_list.sort(key=lambda x: x[7], reverse=True)
+    else:
+        return_list.sort(key=lambda x: x[8], reverse=True)
+    return return_list
 

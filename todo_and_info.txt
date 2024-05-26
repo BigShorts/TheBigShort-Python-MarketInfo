@@ -1,20 +1,17 @@
-Resolve current day tickets and stuff to names
-
-2 stages: buy and sell: 2x 24/7 scripts, interlinked
-
-logic to find shorts from stock
-
-todo make get live price function
-
-
-todo check to see if API has changed since new look to yf - need to look over whole webpages
-
-
 notes for new members:
 we use c++ for AI because it is really, really fast
 we use c# for DataMining on trading212 because efficient and fast
 we use python for DataMining on yahoo finance because of the python only yfinance library
 
+
+2 stages: buy and sell: 2x 24/7 scripts, interlinked
+logic to find shorts from stock
+
+todo make get live price function
+todo make get market opening times for each stock
+
+
+todo check to see if API has changed since new look to yf - need to look over whole webpages
 
 # every 14 days regenerate the intermediate filtered table of stocks - "watchlist"
 # watchlist has "processed" info such as % shares outstanding shorted

@@ -1,3 +1,6 @@
+# this file explains what the fields in the exchange tables mean, temp file before proper docs written
+
+
 import yfinance
 t_object = yfinance.Ticker("MBG.DE")
 nvda = t_object.info

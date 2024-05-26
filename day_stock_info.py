@@ -4,9 +4,8 @@ import pandas
 # This file contains functions that scrape data from Yahoo Finance
 # This file powers the day events (screeners) API calls
 
-urlUS = "https://finance.yahoo.com"
-urlUK = "https://uk.finance.yahoo.com"
-urlDE = "https://de.finance.yahoo.com"  # todo add de (germany)
+site_dict = {"us": "https://finance.yahoo.com", "uk": "https://uk.finance.yahoo.com",
+             "de": "https://de.finance.yahoo.com"}
 default_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                                  'Chrome/120.0.0.0 Safari/537.3'}
 
@@ -47,12 +46,7 @@ def table_to_dict(table, skip: int = 0):
 
 def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0, modify=False,
                    convert_to_dict=True):
-    if market == "uk":
-        site = f"{urlUK}/{site}"
-    elif market == "us":
-        site = f"{urlUS}/{site}"
-    elif market == "de":
-        site = f"{urlDE}/{site}"
+    site = f"{site_dict[market]}/{site}"
     print(f"{site}?count=100")
     tables_list = []
     session = requests_html.HTMLSession()

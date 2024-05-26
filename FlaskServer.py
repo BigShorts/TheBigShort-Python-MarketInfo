@@ -1,6 +1,5 @@
 from flask import Flask
 from yahoolib import *
-from day_stock_info import *
 from flasgger import Swagger
 
 app = Flask(__name__)
@@ -387,40 +386,7 @@ def stock_info(ticker):
 @app.route('/earnings_for_date/<market>/<date>/<sort_by>')
 def earnings_for_date(market, date, sort_by):
     if market in ["us", "uk"]:
-        date = pandas.Timestamp(date).strftime("%Y-%m-%d")
-        url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
-        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
-        return_list = []
-
-        if market == "us":
-            us_indexes = ["nasdaq", "nyse", "nasdaq_other"]
-        else:
-            us_indexes = ["lse"]
-
-        volume, market_cap = [None, None]
-        for stock in calender:
-            for us_index in us_indexes:
-                try:
-                    volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {us_index} "
-                                                          f"WHERE ticker = '{calender[stock][0]}'").fetchone()
-                    if market_cap and volume:
-                        if int(market_cap) > int(all_index_watchlist_min_market_cap):
-                            try:
-                                if int(volume) > int(all_index_watchlist_min_trade_volume):
-                                    calender[stock].append(market_cap)
-                                    calender[stock].append(volume)
-                                    return_list.append(calender[stock])
-                            except TypeError:
-                                pass
-                except TypeError:
-                    volume, market_cap = [None, None]
-
-        # sort return list by market cap or trade volume
-        if sort_by == "market_cap":
-            return_list.sort(key=lambda x: x[7], reverse=True)
-        else:
-            return_list.sort(key=lambda x: x[8], reverse=True)
-        return return_list
+        return load_earnings(market, date, sort_by)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
@@ -520,6 +486,7 @@ def day_forex_rates(from_market):
 
 
 @app.route('/day_us_bonds')
+# lamda one liner
 def day_us_bonds():
     return raw_daily_info("us", "/bonds", skip=1)
 
