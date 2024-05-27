@@ -1,13 +1,14 @@
 from flask import Flask
 from yahoolib import *
 from flasgger import Swagger
+import re
 
 app = Flask(__name__)
 swagger = Swagger(app, template={
     "info": {
         "title": "Python tickerlib.py python API",
         "description": "Examples of how to use the projects python stock API",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     # put the below into paths for "day changes" and "stock info"
 
@@ -23,7 +24,6 @@ swagger = Swagger(app, template={
             "get": {
                 "tags": ["Stock info"],
                 "summary": "Attempts to find and return the ticker symbol for a specific company",#
-                "deprecated": True,
                 "parameters": [
                     {
                         "name": "company_name",
@@ -85,6 +85,65 @@ swagger = Swagger(app, template={
 
                 ],
                 "responses": {"200": {"description": "Returns the earnings for the date"}}
+            }
+        },
+        "/stock_splits_for_date/{date}/{sort_by}": {
+            "get": {
+                "tags": ["Market info"],
+                "summary": "Returns the stock splits for a specific date from a specific market",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The date to get stock splits from",
+                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "Method to sort the stocks by",
+                        "enum": ["market_cap", "trade_volume"]
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the stock splits for the date"}}
+            }
+        },
+        "/ipos_for_date/{date}/": {
+            "get": {
+                "tags": ["Market info"],
+                "summary": "Returns the IPOs for a specific date",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The date to get IPOs from",
+                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the IPOs for the date"}}
+            }
+        },
+        "/economic_events_for_date/{date}/": {
+            "get": {
+                "tags": ["Market info"],
+                "summary": "Returns the economic events for a specific date",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "type": "string",
+                        "required": True,
+                        "description": "The date to get economic events from",
+                        "default": str(datetime.datetime.now().date()+datetime.timedelta(days=1))
+                    }
+                ],
+                "responses": {"200": {"description": "Returns the economic events for the date"}}
             }
         },
         "/index/{index_name}/{return_type}": {
@@ -366,17 +425,24 @@ def blank_page():
     return "This is a blank page, navigate to the API documentation at /apidocs"
 
 
-# todo build function
 # stock info functions below
 @app.route('/tns/<company_name>')
 def tns(company_name):
-    return None
+    search_dict = {}
+    [search_dict.update({ex: []}) for ex in supported_exchange_list]
+    for ex in supported_exchange_list:
+        data = index_db.execute(f"SELECT ticker, company_name FROM {ex}").fetchall()
+        for i in range(len(data)):
+            if data[i][1] is not None:
+                if re.search(r"\b" + re.escape(company_name.lower()) + r"\b", data[i][1].lower()):
+                    search_dict[ex].append([data[i][0], data[i][1]])
+    return search_dict
 
 
 @app.route('/stock_info/<ticker>/')
 def stock_info(ticker):
-    for exchange in supported_exchange_list:
-        ticker_info = index_db.execute(f"SELECT * FROM {exchange} WHERE ticker = '{ticker}'").fetchone()
+    for ex in supported_exchange_list:
+        ticker_info = index_db.execute(f"SELECT * FROM {ex} WHERE ticker = '{ticker}'").fetchone()
         if ticker_info:
             return list(ticker_info)
     return "Ticker not found"
@@ -389,6 +455,21 @@ def earnings_for_date(market, date, sort_by):
         return load_earnings(market, date, sort_by)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
+
+
+@app.route('/stock_splits_for_date/<date>/<sort_by>')
+def stock_splits_for_date(date, sort_by):
+    return get_stock_splits(date, sort_by)
+
+
+@app.route('/ipos_for_date/<date>/')
+def ipos_for_date(date):
+    return get_dated_calender("ipo", date)
+
+
+@app.route('/economic_events_for_date/<date>/')
+def economic_events_for_date(date):
+    return get_dated_calender("economic", date)
 
 
 @app.route('/index/<index_name>/<return_type>')
@@ -418,24 +499,16 @@ def profile(ticker):
 
 @app.route('/most_active/<market>/<sort_by>')
 def most_active(market, sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
     if market in ["us", "uk"]:
-        return raw_daily_info(market, f"/most-active", multiple_pages=True, sort_by_element=element)
+        return raw_daily_info(market, f"/most-active", sort_by_element=sort_by)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
 
 @app.route('/day_gainers/<market>/<sort_by>')
 def day_gainers(market, sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
     if market in ["us", "uk"]:
-        return raw_daily_info(market, "/gainers", multiple_pages=True, sort_by_element=element)
+        return raw_daily_info(market, "/gainers", sort_by_element=sort_by)
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
@@ -443,30 +516,26 @@ def day_gainers(market, sort_by):
 @app.route('/day_losers/<market>')
 def day_losers(market):
     if market in ["us", "uk"]:
-        return raw_daily_info(market, "/losers", multiple_pages=True)
+        return raw_daily_info(market, "/losers")
     else:
         return "Market not found, available markets are 'us' and 'uk'"
 
 
 @app.route('/day_trending_tickers')
 def day_trending_tickers():
-    return raw_daily_info("us", "/trending-tickers", skip=2)
+    return raw_daily_info("us", "/trending-tickers", multiple_pages=False, skip=2)
 
 
 @app.route('/day_etfs/')
 def day_etfs():
-    return raw_daily_info("us", "/etfs", multiple_pages=True)
+    return raw_daily_info("us", "/etfs")
 
 
 @app.route('/day_futures/<market>')
 def day_futures(market):
-    if market == "us":
-        result_table = table_to_dict(pandas.read_html(requests.get(f"{urlUS}/commodities",
-                                                      headers=default_headers).text)[0], skip=1)
-        return [str(value)[2:-3] for key, value in result_table.items()]
-    elif market == "uk":
-        result_table = table_to_dict(pandas.read_html(requests.get(f"{urlUK}/commodities",
-                                                      headers=default_headers).text)[0], skip=1)
+    if market in ["us", "uk"]:
+        result_table = table_to_dict(pandas.read_html(requests.get(f"{site_dict[market]}/commodities",
+                                                                   headers=default_headers).text)[0], skip=1)
         return [str(value)[2:-3] for key, value in result_table.items()]
     else:
         return "Market not found, available markets are 'us' and 'uk'"
@@ -474,13 +543,13 @@ def day_futures(market):
 
 @app.route('/day_world_indices/')
 def day_world_indices():
-    return raw_daily_info("us", "/world-indices", skip=2)
+    return raw_daily_info("us", "/world-indices", multiple_pages=False, skip=2)
 
 
 @app.route('/day_forex_rates/<from_market>')
 def day_forex_rates(from_market):
     if from_market in ["us", "uk", "de"]:
-        return raw_daily_info(from_market, "/currencies", skip=1)
+        return raw_daily_info(from_market, "/currencies", multiple_pages=False, skip=1)
     else:
         return "Market not found, available markets are 'us', 'uk' and 'de'"
 
@@ -488,49 +557,29 @@ def day_forex_rates(from_market):
 @app.route('/day_us_bonds')
 # lamda one liner
 def day_us_bonds():
-    return raw_daily_info("us", "/bonds", skip=1)
+    return raw_daily_info("us", "/bonds", multiple_pages=False, skip=1)
 
 
 @app.route('/day_crypto/<amount>')
 def day_crypto(amount):
-    return raw_daily_info("us", "/crypto", multiple_pages=True, page_limit=int(amount), skip=1)
+    return raw_daily_info("us", "/crypto", page_limit=int(amount), skip=1)
 
 
 @app.route('/day_aggressive_small_caps/<sort_by>')
 def day_aggressive_small_caps(sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
-    return raw_daily_info("us", "screener/predefined/aggressive_small_caps",
-                          multiple_pages=True, sort_by_element=element)
+    return raw_daily_info("us", "screener/predefined/aggressive_small_caps", sort_by_element=sort_by)
 
 
 @app.route('/portfolio_anchors/<sort_by>')
 def portfolio_anchors(sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
-    return raw_daily_info("us", "screener/predefined/portfolio_anchors",
-                          multiple_pages=True, sort_by_element=element)
+    return raw_daily_info("us", "screener/predefined/portfolio_anchors", sort_by_element=sort_by)
 
 
 @app.route('/undervalued_growth/<sort_by>')
 def undervalued_growth(sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
-    return raw_daily_info("us", "screener/predefined/undervalued_growth_stocks",
-                          multiple_pages=True, sort_by_element=element)
+    return raw_daily_info("us", "screener/predefined/undervalued_growth_stocks", sort_by_element=sort_by)
 
 
 @app.route('/undervalued_large_caps/<sort_by>')
 def undervalued_large_caps(sort_by):
-    if sort_by == "percent_change":
-        element = 4
-    else:
-        element = 7
-    return raw_daily_info("us", "screener/predefined/undervalued_large_caps",
-                          multiple_pages=True, sort_by_element=element)
+    return raw_daily_info("us", "screener/predefined/undervalued_large_caps", sort_by_element=sort_by)

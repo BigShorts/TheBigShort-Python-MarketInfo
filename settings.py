@@ -16,10 +16,10 @@ exchange_profiles_refresh_time = 26
 
 # watchlist refresh time in days
 # stocks in watchlist are force refreshed if older than this
-all_index_watchlist_refresh_time = 14
+all_ex_watchlist_refresh_time = 14
 
 # watchlist min market cap in USD
-all_index_watchlist_min_market_cap = 10_000_000  # todo currency conversion?
+all_ex_watchlist_min_market_cap = 10_000_000  # todo currency conversion?
 
 # watchlist min trade volume (average over last 10 days)
-all_index_watchlist_min_trade_volume = 100_000
+all_ex_watchlist_min_trade_volume = 100_000

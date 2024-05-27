@@ -44,31 +44,28 @@ def table_to_dict(table, skip: int = 0):
     return _data_
 
 
-def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0, modify=False,
-                   convert_to_dict=True):
+def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, page_limit=50, skip=0,
+                   modify="?", convert_to_dict=True):
     site = f"{site_dict[market]}/{site}"
     print(f"{site}?count=100")
     tables_list = []
     session = requests_html.HTMLSession()
-    if modify:
-        resp = session.get(f"{site}&count=100")
-    else:
-        resp = session.get(f"{site}?count=100")
+    resp = session.get(f"{site}{modify}count=100")
 
     # splits the html page where it says, for example, "1-100 of 256 results" and gets the number of pages from this
-    if multiple_pages:
-        pages = (int(str(resp.html.raw_html).split("<span>1-")[1].split(" results</span>")[0].split(" of ")[1])//100)+1
-    else:
-        pages = 1
-    if pages > page_limit:
-        pages = page_limit
+    try:
+        if multiple_pages:
+            pages = (int(str(resp.html.raw_html).split("<span>1-")[1].split(" results</span>")[0].split(" of ")[1])//100)+1
+        else:
+            pages = 1
+        if pages > page_limit:
+            pages = page_limit
+    except IndexError:
+        return []
 
     for i in range(pages):
         if i != 0:
-            if modify:
-                resp = session.get(f"{site}&count=100&offset={i*100}")
-            else:
-                resp = session.get(f"{site}?count=100&offset={i*100}")
+            resp = session.get(f"{site}{modify}count=100&offset={i*100}")
         try:
             tables = pandas.read_html(resp.html.raw_html)
         except ValueError:
@@ -94,9 +91,8 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
 
         session.close()
 
+        # convert table to dict then replace nan's with 0.0
         new_table = table_to_dict(df, skip=skip)
-
-        # replace nan's with 0.0
         new_table = {key: [0.0 if str(value) == "nan" else value for value in new_table[key]] for key in new_table}
 
         # replace the dict keys with counted numbers relative to the page
@@ -111,17 +107,20 @@ def raw_daily_info(market, site, multiple_pages=False, sort_by_element=None, pag
 
     # sort the table by the sort_by_element number item in the table
     if sort_by_element:
-        if sort_by_element:
-            # todo could i use a loop instead of comprehension?
-            if result_table[1][sort_by_element] is float:
-                result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
-                                item[1][sort_by_element], reverse=True)}
-            else:
-                result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
-                                float(item[1][sort_by_element]), reverse=True)}
+        if sort_by_element == "percent_change":
+            sort_by_element = 4
+        else:
+            sort_by_element = 7
+
+        if result_table[1][sort_by_element] is float:
+            result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
+                            item[1][sort_by_element], reverse=True)}
+        else:
+            result_table = {k: v for k, v in sorted(result_table.items(), key=lambda item:
+                            float(item[1][sort_by_element]), reverse=True)}
 
     # use list comprehension to make list of dictionaries
     if convert_to_dict:
-        return [str(value)[2:-3] for key, value in result_table.items()]
+        return [str(value)[2:-2] for key, value in result_table.items()]
     else:
         return result_table

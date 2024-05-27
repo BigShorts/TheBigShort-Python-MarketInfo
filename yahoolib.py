@@ -1,5 +1,4 @@
 from index_and_exchange_downloader import *
-from day_stock_info import _force_float_
 from day_stock_info import *
 from settings import *
 import datetime
@@ -308,22 +307,22 @@ def load_earnings(market, date, sort_by):
         return_list = []
         date = pandas.Timestamp(date).strftime("%Y-%m-%d")
         url = f"calendar/earnings?from=2024-05-26&to=2024-06-01&day={date}"
-        calender = raw_daily_info(market, url, multiple_pages=True, modify=True, convert_to_dict=False)
+        calender = raw_daily_info(market, url, modify="&", convert_to_dict=False)
 
         if market == "us":
-            index_list = ["nasdaq", "nyse", "nasdaq_other"]
+            exchange_list = ["nasdaq", "nyse", "nasdaq_other"]
         else:
-            index_list = ["lse"]
+            exchange_list = ["lse"]
 
         for stock in calender:
-            for index in index_list:
+            for ex in exchange_list:
                 try:
-                    volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {index} "
+                    volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {ex} "
                                                           f"WHERE ticker = '{calender[stock][0]}'").fetchone()
                     if market_cap and volume:
-                        if int(market_cap) > int(all_index_watchlist_min_market_cap):
+                        if int(market_cap) > int(all_ex_watchlist_min_market_cap):
                             try:
-                                if int(volume) > int(all_index_watchlist_min_trade_volume):
+                                if int(volume) > int(all_ex_watchlist_min_trade_volume):
                                     calender[stock].append(market_cap)
                                     calender[stock].append(volume)
                                     return_list.append(calender[stock])
@@ -348,3 +347,39 @@ def load_earnings(market, date, sort_by):
         return_list.sort(key=lambda x: x[8], reverse=True)
     return return_list
 
+
+# gets the stock splits for a given date
+def get_stock_splits(date, sort_by):
+    return_list = []
+    date = pandas.Timestamp(date).strftime("%Y-%m-%d")
+    url = f"calendar/splits?from=2024-05-26&to=2024-06-01&day={date}"
+    stock_splits = raw_daily_info("us", url, modify="&", convert_to_dict=False)
+    for stock in stock_splits:
+        for exchange in supported_exchange_list:
+            try:
+                volume, market_cap = index_db.execute(f"SELECT average_volume_10days, market_cap FROM {exchange} "
+                                                      f"WHERE ticker = '{stock_splits[stock][0]}'").fetchone()
+                if market_cap and volume:
+                    if int(market_cap) > int(all_ex_watchlist_min_market_cap):
+                        try:
+                            if int(volume) > int(all_ex_watchlist_min_trade_volume):
+                                stock_splits[stock].append(market_cap)
+                                stock_splits[stock].append(volume)
+                                return_list.append(stock_splits[stock])
+                        except TypeError:
+                            pass
+            except TypeError:
+                pass
+
+    # sort return list by market cap or trade volume
+    if sort_by == "market_cap":
+        return_list.sort(key=lambda x: x[5], reverse=True)
+    else:
+        return_list.sort(key=lambda x: x[6], reverse=True)
+    return return_list
+
+
+def get_dated_calender(calender_name, date):
+    date = pandas.Timestamp(date).strftime("%Y-%m-%d")
+    url = f"calendar/{calender_name}?from=2024-05-26&to=2024-06-01&day={date}"
+    return raw_daily_info("us", url, modify="&")
