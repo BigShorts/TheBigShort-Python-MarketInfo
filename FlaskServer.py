@@ -382,7 +382,7 @@ def stock_info(ticker):
     return "Ticker not found"
 
 
-# market info functions below
+# market info functions below  # todo the below returns company events for the day. not just earnings calls/releases
 @app.route('/earnings_for_date/<market>/<date>/<sort_by>')
 def earnings_for_date(market, date, sort_by):
     if market in ["us", "uk"]:

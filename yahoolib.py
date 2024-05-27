@@ -293,7 +293,7 @@ print("Profile refreshes complete")
 for country in site_dict.keys():
     index_db.execute(f"CREATE TABLE IF NOT EXISTS {country}_calendar (calender_date TEXT, ticker TEXT, "
                      f"company_name TEXT, event_name TEXT, market_time TEXT, EPS_estimate TEXT, EPS_reported TEXT, "
-                     f"surprise TEXT, market_cap FLOAT, average_volume TEXT)")
+                     f"surprise TEXT, market_cap FLOAT, average_volume FLOAT)")
 
 
 def load_earnings(market, date, sort_by):
@@ -327,6 +327,7 @@ def load_earnings(market, date, sort_by):
                                     calender[stock].append(market_cap)
                                     calender[stock].append(volume)
                                     return_list.append(calender[stock])
+                                    break
                             except TypeError:
                                 pass
                 except TypeError:
