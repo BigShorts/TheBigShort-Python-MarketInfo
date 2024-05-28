@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,redirect
 from yahoolib import *
 from flasgger import Swagger
 import re
@@ -422,8 +422,7 @@ swagger = Swagger(app, template={
 # app routing code below
 @app.route('/')
 def blank_page():
-    return "This is a blank page, navigate to the API documentation at /apidocs"
-
+    return redirect('apidocs')
 
 # stock info functions below
 @app.route('/tns/<company_name>')
