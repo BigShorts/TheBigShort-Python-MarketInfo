@@ -91,7 +91,7 @@ def load_index(index_name, return_type="tickers"):
 
         if return_type == "tickers":
             return _tickers
-        elif return_type == "_names":
+        elif return_type == "names":
             return _names
         elif return_type == "other_info":
             return _other_info
