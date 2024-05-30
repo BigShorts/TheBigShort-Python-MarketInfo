@@ -72,7 +72,7 @@ def load_index(index_name, return_type="tickers"):
         for name in supported_index_list:
             if index_name == name.split("_")[1]:
                 index_full_name = name
-                exchange = name.split("_")[0]
+                #exchange = name.split("_")[0]
                 break
 
         # check if the index needs to be refreshed by checking the refresh time
@@ -83,8 +83,6 @@ def load_index(index_name, return_type="tickers"):
             if (datetime.datetime.now() < datetime.datetime.fromisoformat(_refresh_time[0]) +
                     datetime.timedelta(days=supported_index_dict[index_name][1])):
                 _tickers = [str(index)[2:-3] for index in (index_db.execute(f"SELECT ticker FROM {index_full_name}").fetchall())]
-                _names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()]
-                _other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()]
         if not _tickers:
             _tickers, _names, _other_info = get_index(index_name)
             write_index(index_full_name, _tickers, _names, _other_info)
@@ -92,11 +90,9 @@ def load_index(index_name, return_type="tickers"):
         if return_type == "tickers":
             return _tickers
         elif return_type == "names":
-            return _names
+            return [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {index_full_name}").fetchall()]
         elif return_type == "other_info":
-            return _other_info
-        elif return_type == "all":
-            return exchange+"\n"+_tickers+"\n"+_names+"\n"+_other_info
+            return [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {index_full_name}").fetchall()]
     else:
         return "Index not found"
 
@@ -125,17 +121,21 @@ def load_exchange(exchange, return_type="tickers"):
             if (datetime.datetime.now() < datetime.datetime.fromisoformat(_refresh_time[0]) +
                     datetime.timedelta(days=exchange_refresh_time)):
                 _tickers = [str(index)[2:-3] for index in index_db.execute(f"SELECT ticker FROM {exchange}").fetchall()]
-                _names = [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()]
-                _other_info = [str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()]
         if not _tickers:
             _tickers, _names, _other_info = get_exchange(exchange)
             write_exchange(exchange, _tickers, _names, _other_info)
         if return_type == "tickers":
             return _tickers
         elif return_type == "names":
-            return _names
+            return [str(name)[2:-3] for name in index_db.execute(f"SELECT company_name FROM {exchange}").fetchall()]
+        elif return_type == "company_execs":
+            company_exec_dict = {}
+            company_execs = index_db.execute(f"SELECT company_officers FROM {exchange}").fetchall()
+            for i in range(len(company_execs)):
+                company_exec_dict.update({_tickers[i]: company_execs[i]})
+            return company_exec_dict
         elif return_type == "other_info":
-            return str(_tickers)+"\n"+str(_other_info)
+            return str(_tickers)+"\n"+str([str(info)[2:-3] for info in index_db.execute(f"SELECT other_info FROM {exchange}").fetchall()])
     else:
         return "Exchange not found"
 

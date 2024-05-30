@@ -162,7 +162,7 @@ swagger = Swagger(app, template={
                         "name": "return_type",
                         "in": "path", "type": "string",
                         "required": True,
-                        "enum": ["tickers", "names", "other_info", "all"],
+                        "enum": ["tickers", "names", "other_info"],
                     }
                 ],
                 "responses": {"200": {"description": "Returns the index data"}}
@@ -200,7 +200,7 @@ swagger = Swagger(app, template={
                         "name": "return_type",
                         "in": "path", "type": "string",
                         "required": True,
-                        "enum": ["tickers", "names", "other_info"],
+                        "enum": ["tickers", "names", "company_execs", "other_info"],
                     }
                 ],
                 "responses": {"200": {"description": "Returns the exchange data"}}
